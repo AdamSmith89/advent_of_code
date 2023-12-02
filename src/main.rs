@@ -1,5 +1,5 @@
-use advent_of_code::year2022;
 use clap::Parser;
+use advent_of_code::*;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -11,32 +11,51 @@ struct Args {
     puzzle: String,
 }
 
-use year2022::day01::*;
-use advent_of_code::solver::*;
 
 fn main() -> color_eyre::eyre::Result<()> {
     color_eyre::install()?;
+    let _args = Args::parse();
 
-    let args = Args::parse();
-    println!("{args:?}");
+    let solutions = year2023();
 
-    let mut s = Year2022Day01{};
-    solve_puzzle(&mut s, "test")?;
+    for Solution { input, solve } in solutions {
+        let (part1, part2) = solve(input)?;
+
+        println!("Part 1 = {part1}");
+        println!("Part 2 = {part2}");
+    }
 
     Ok(())
 }
 
-fn solve_puzzle<S: Solver>(solver: &mut S, input: &str) -> color_eyre::eyre::Result<()>
-where
-    <S as Solver>::Output: std::fmt::Display,
-{
-    let parsed_input = S::parse(input)?;
+struct Solution {
+    input: &'static str,
+    solve: fn(&str) -> color_eyre::Result<(String, String)>,
+}
 
-    let part1 = solver.part1(&parsed_input)?;
-    println!("  Part1 = {part1}");
-    
-    let part2 = solver.part2(&parsed_input)?;
-    println!("  Part2 = {part2}");
+macro_rules! solution {
+    ($year:tt, $day:tt) => {
+        Solution {
+            input: include_str!(concat![
+                "../input/",
+                stringify!($year),
+                "/",
+                stringify!($day),
+                ".txt"
+            ]),
+            solve: |raw: &str| {
+                use $year::$day::*;
+                let input = parse(raw)?;
+                let part1 = part1(&input)?.to_string();
+                let part2 = part2(&input)?.to_string();
+                Ok((part1, part2))
+            },
+        }
+    };
+}
 
-    Ok(())
+fn year2023() -> Vec<Solution> {
+    vec![
+        solution!(year2023, day01),
+    ]
 }
