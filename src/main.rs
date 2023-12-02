@@ -18,17 +18,18 @@ fn main() -> color_eyre::eyre::Result<()> {
 
     let solutions = year2023();
 
-    for Solution { input, solve } in solutions {
-        let (part1, part2) = solve(input)?;
+    for solution in solutions {
+        let (part1, part2) = (solution.solve)(solution.input)?;
 
-        println!("Part 1 = {part1}");
-        println!("Part 2 = {part2}");
+        println!("{}::{} - Part1 = {part1}, Part2 = {part2}", solution.year, solution.day);
     }
 
     Ok(())
 }
 
 struct Solution {
+    year: String,
+    day: String,
     input: &'static str,
     solve: fn(&str) -> color_eyre::Result<(String, String)>,
 }
@@ -36,6 +37,8 @@ struct Solution {
 macro_rules! solution {
     ($year:tt, $day:tt) => {
         Solution {
+            year: stringify!($year).to_string(),
+            day: stringify!($day).to_string(),
             input: include_str!(concat![
                 "../input/",
                 stringify!($year),
@@ -57,5 +60,6 @@ macro_rules! solution {
 fn year2023() -> Vec<Solution> {
     vec![
         solution!(year2023, day01),
+        solution!(year2023, day02),
     ]
 }

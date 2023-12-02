@@ -60,10 +60,10 @@ pub fn part2(input: &Vec<&str>) -> color_eyre::Result<u32> {
     let mut sum = 0;
 
     for line in input {
-        let first = find_first_of(&line, &numbers)
-            .expect(format!("Failed to find first number in \"{line}\"").as_str());
-        let last = find_last_of(&line, &numbers)
-            .expect(format!("Failed to find last number in \"{line}\"").as_str());
+        let first = find_first_of(line, &numbers)
+            .unwrap_or_else(|| panic!("Failed to find first number in \"{line}\""));
+        let last = find_last_of(line, &numbers)
+            .unwrap_or_else(|| panic!("Failed to find last number in \"{line}\""));
 
         sum += 10 * to_digit(&first) + to_digit(&last);
     }
@@ -71,7 +71,7 @@ pub fn part2(input: &Vec<&str>) -> color_eyre::Result<u32> {
     Ok(sum)
 }
 
-fn to_digit(s: &String) -> u32 {
+fn to_digit(s: &str) -> u32 {
     let map = HashMap::from([
         ("one", '1'),
         ("two", '2'),
@@ -87,7 +87,7 @@ fn to_digit(s: &String) -> u32 {
     let ch = if s.chars().next().unwrap().is_ascii_digit() {
         s.chars().next().unwrap()
     } else {
-        map.get(s.as_str()).expect("Failed to find digit").clone()
+        *map.get(s).expect("Failed to find digit")
     };
 
     ch.to_digit(10).unwrap()
@@ -131,11 +131,7 @@ fn find_last_of(s: &str, terms: &[String]) -> Option<String> {
     let s: String = s.chars().rev().collect();
     let terms: Vec<String> = terms.iter().map(|s| s.chars().rev().collect()).collect();
 
-    if let Some(result) = find_first_of(s.as_str(), terms.as_slice()) {
-        Some(result.chars().rev().collect())
-    } else {
-        None
-    }
+    find_first_of(s.as_str(), terms.as_slice()).map(|result| result.chars().rev().collect())
 }
 
 #[cfg(test)]
