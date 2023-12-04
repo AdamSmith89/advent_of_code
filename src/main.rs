@@ -1,5 +1,5 @@
-use clap::Parser;
 use advent_of_code::*;
+use clap::Parser;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -11,17 +11,37 @@ struct Args {
     puzzle: String,
 }
 
-
 fn main() -> color_eyre::eyre::Result<()> {
     color_eyre::install()?;
-    let _args = Args::parse();
+    let args = Args::parse();
 
-    let solutions = year2023();
+    let all_solutions = year2023();
+    let mut run_solutions = Vec::new();
 
-    for solution in solutions {
+    if args.puzzle == "latest" {
+        run_solutions.push(all_solutions.last().unwrap());
+    } else if args.puzzle == "all" {
+        run_solutions = all_solutions.iter().collect();
+    } else {
+        run_solutions = all_solutions
+            .iter()
+            .filter(|&solution| {
+                if let Some((year, day)) = args.puzzle.split_once("::") {
+                    solution.year == year && solution.day == day
+                } else {
+                    solution.year == args.puzzle
+                }
+            })
+            .collect::<Vec<_>>();
+    }
+
+    for solution in run_solutions {
         let (part1, part2) = (solution.solve)(solution.input)?;
 
-        println!("{}::{} - Part1 = {part1}, Part2 = {part2}", solution.year, solution.day);
+        println!(
+            "{}::{} - Part1 = {part1}, Part2 = {part2}",
+            solution.year, solution.day
+        );
     }
 
     Ok(())
@@ -61,5 +81,7 @@ fn year2023() -> Vec<Solution> {
     vec![
         solution!(year2023, day01),
         solution!(year2023, day02),
+        solution!(year2023, day03),
+        solution!(year2023, day04),
     ]
 }

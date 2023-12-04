@@ -91,9 +91,9 @@ pub fn part2(games: &[Game]) -> color_eyre::Result<u32> {
 enum Year2023Day02Error {
     #[error("Failed to split on {0}")]
     Split(char),
-    #[error("Failed to parse int")]
+    #[error("Failed to parse int: {0}")]
     ParseInt(String),
-    #[error("Failed to parse colour")]
+    #[error("Failed to parse colour: {0}")]
     ParseColour(String),
 }
 
@@ -140,9 +140,10 @@ impl FromStr for Colour {
         use Year2023Day02Error::*;
 
         let (num, colour) = s.split_once(' ').ok_or(Split(' '))?;
-        let num: u32 = num.to_string().parse().map_err(|err: ParseIntError| {
-            ParseInt(format!("Parse error for '{num}': {}", err.to_string()))
-        })?;
+        let num: u32 = num
+            .to_string()
+            .parse()
+            .map_err(|err: ParseIntError| ParseInt(format!("Parse error for '{num}': {}", err)))?;
 
         match colour {
             "red" => Ok(Red(num)),
