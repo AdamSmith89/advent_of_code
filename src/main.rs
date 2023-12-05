@@ -1,54 +1,54 @@
+use std::iter::empty;
+
 use advent_of_code::*;
 use clap::Parser;
 
 #[derive(Parser, Debug)]
 struct Args {
-    /// Run all solved puzzles
-    #[arg(short, long, action, conflicts_with("puzzle"))]
-    all: bool,
-
     /// Run specific puzzle, e.g "year2022" or "year2022::day01"
-    #[arg(short, long, verbatim_doc_comment, conflicts_with("all"))]
+    #[arg(short, long, verbatim_doc_comment)]
     puzzle: Option<String>,
 }
 
 fn main() -> color_eyre::eyre::Result<()> {
     color_eyre::install()?;
+
     let args = Args::parse();
+    let (year, day) = parse_args(&args);
 
-    let all_solutions = year2023();
-    let mut run_solutions = Vec::new();
-
-    if args.all {
-        run_solutions = all_solutions.iter().collect();
-    } else if let Some(puzzle) = args.puzzle {
-        run_solutions = all_solutions
-            .iter()
-            .filter(|&solution| {
-                if let Some((year, day)) = puzzle.split_once("::") {
-                    solution.year == year && solution.day == day
-                } else {
-                    solution.year == puzzle
-                }
-            })
-            .collect::<Vec<_>>();
-    } else {
-        run_solutions.push(all_solutions.last().unwrap());
-    }
-
-    for solution in run_solutions {
-        let (part1, part2) = (solution.solve)(solution.input)?;
+    for puzzle in get_puzzles(year, day) {
+        let (part1, part2) = (puzzle.solve)(puzzle.input)?;
 
         println!(
             "{}::{} - Part1 = {part1}, Part2 = {part2}",
-            solution.year, solution.day
+            puzzle.year, puzzle.day
         );
     }
 
     Ok(())
 }
 
-struct Solution {
+fn parse_args<'a>(args: &'a Args) -> (Option<&'a str>, Option<&'a str>) {
+    if let Some(puzzle) = &args.puzzle {
+        if let Some((year, day)) = puzzle.split_once("::") {
+            (Some(year), Some(day))
+        } else {
+            (Some(puzzle.as_str()), None)
+        }
+    } else {
+        (None, None)
+    }
+}
+
+fn get_puzzles(year: Option<&str>, day: Option<&str>) -> Vec<Puzzle> {
+    empty()
+        .chain(year2023())
+        .filter(|puzzle| year.map_or(true, |year| year == puzzle.year))
+        .filter(|puzzle| day.map_or(true, |day| day == puzzle.day))
+        .collect::<Vec<_>>()
+}
+
+struct Puzzle {
     year: String,
     day: String,
     input: &'static str,
@@ -57,7 +57,7 @@ struct Solution {
 
 macro_rules! solution {
     ($year:tt, $day:tt) => {
-        Solution {
+        Puzzle {
             year: stringify!($year).to_string(),
             day: stringify!($day).to_string(),
             input: include_str!(concat![
@@ -78,7 +78,7 @@ macro_rules! solution {
     };
 }
 
-fn year2023() -> Vec<Solution> {
+fn year2023() -> Vec<Puzzle> {
     vec![
         solution!(year2023, day01),
         solution!(year2023, day02),

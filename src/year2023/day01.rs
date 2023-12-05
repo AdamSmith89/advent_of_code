@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 
-pub fn parse(input: &str) -> color_eyre::Result<Vec<&str>> {
+type ParsedInput<'a> = Vec<&'a str>;
+
+pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     Ok(input.lines().collect())
 }
 
-pub fn part1(input: &Vec<&str>) -> color_eyre::Result<u32> {
+pub fn part1(input: &ParsedInput) -> color_eyre::Result<u32> {
     // On each line, the calibration value can be found by combining
     // the first digit and the last digit (in that order) to form a single two-digit number.
     // What is the sum of all of the calibration values?
@@ -31,7 +33,7 @@ pub fn part1(input: &Vec<&str>) -> color_eyre::Result<u32> {
     Ok(sum)
 }
 
-pub fn part2(input: &Vec<&str>) -> color_eyre::Result<u32> {
+pub fn part2(input: &ParsedInput) -> color_eyre::Result<u32> {
     // It looks like some of the digits are actually spelled out with letters:
     // one, two, three, four, five, six, seven, eight, and nine also count as valid "digits".
 

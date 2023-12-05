@@ -1,6 +1,8 @@
 use std::{num::ParseIntError, str::FromStr};
 
-pub fn parse(input: &str) -> color_eyre::Result<Vec<Game>> {
+type ParsedInput = Vec<Game>;
+
+pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     // E.g.: Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
     use Year2023Day02Error::*;
 
@@ -31,7 +33,7 @@ pub fn parse(input: &str) -> color_eyre::Result<Vec<Game>> {
     Ok(games)
 }
 
-pub fn part1(games: &[Game]) -> color_eyre::Result<u32> {
+pub fn part1(games: &ParsedInput) -> color_eyre::Result<u32> {
     // once a bag has been loaded with cubes, the Elf will reach into the bag,
     // grab a handful of random cubes, show them to you, and then put them back
     // in the bag. He'll do this a few times per game.
@@ -42,7 +44,7 @@ pub fn part1(games: &[Game]) -> color_eyre::Result<u32> {
     let green_limit = 13;
     let blue_limit = 14;
 
-    let mut games = games.to_vec();
+    let mut games = games.clone();
     games.retain(|game| {
         game.draws.iter().all(|draw| {
             draw.colours.iter().all(|colour| match colour {
@@ -56,7 +58,7 @@ pub fn part1(games: &[Game]) -> color_eyre::Result<u32> {
     Ok(games.iter().map(|game| game.id).sum())
 }
 
-pub fn part2(games: &[Game]) -> color_eyre::Result<u32> {
+pub fn part2(games: &ParsedInput) -> color_eyre::Result<u32> {
     // what is the fewest number of cubes of each color that could have
     // been in the bag to make the game possible?
     // The power of a set of cubes is equal to the numbers of red, green,
