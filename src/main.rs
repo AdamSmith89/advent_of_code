@@ -3,12 +3,13 @@ use clap::Parser;
 
 #[derive(Parser, Debug)]
 struct Args {
-    /// Specific puzzle to run. Options are;
-    /// - "latest" to run the latest completed test
-    /// - "all" to run all completed puzzles
-    /// - "year2022" or "year2022::day01" for a specific puzzle
-    #[arg(short, long, default_value = "latest", verbatim_doc_comment)]
-    puzzle: String,
+    /// Run all solved puzzles
+    #[arg(short, long, action, conflicts_with("puzzle"))]
+    all: bool,
+
+    /// Run specific puzzle, e.g "year2022" or "year2022::day01"
+    #[arg(short, long, verbatim_doc_comment, conflicts_with("all"))]
+    puzzle: Option<String>,
 }
 
 fn main() -> color_eyre::eyre::Result<()> {
@@ -18,21 +19,21 @@ fn main() -> color_eyre::eyre::Result<()> {
     let all_solutions = year2023();
     let mut run_solutions = Vec::new();
 
-    if args.puzzle == "latest" {
-        run_solutions.push(all_solutions.last().unwrap());
-    } else if args.puzzle == "all" {
+    if args.all {
         run_solutions = all_solutions.iter().collect();
-    } else {
+    } else if let Some(puzzle) = args.puzzle {
         run_solutions = all_solutions
             .iter()
             .filter(|&solution| {
-                if let Some((year, day)) = args.puzzle.split_once("::") {
+                if let Some((year, day)) = puzzle.split_once("::") {
                     solution.year == year && solution.day == day
                 } else {
-                    solution.year == args.puzzle
+                    solution.year == puzzle
                 }
             })
             .collect::<Vec<_>>();
+    } else {
+        run_solutions.push(all_solutions.last().unwrap());
     }
 
     for solution in run_solutions {
@@ -83,5 +84,6 @@ fn year2023() -> Vec<Solution> {
         solution!(year2023, day02),
         solution!(year2023, day03),
         solution!(year2023, day04),
+        solution!(year2023, day05),
     ]
 }

@@ -1,7 +1,7 @@
-type ParsedInput = todo!();
+type ParsedInput = ();
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
-    
+    Ok(())
 }
 
 pub fn part1(input: &ParsedInput) -> color_eyre::Result<u32> {
