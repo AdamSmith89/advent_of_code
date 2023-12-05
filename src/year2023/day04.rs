@@ -1,27 +1,5 @@
 type ParsedInput = Vec<Card>;
 
-#[derive(Clone, Debug)]
-pub struct Card {
-    id: usize,
-    winners: Vec<u32>,
-    numbers: Vec<u32>,
-}
-
-impl Card {
-    fn get_matches(&self) -> Vec<u32> {
-        self.numbers
-            .iter()
-            .filter_map(|&num| {
-                if self.winners.contains(&num) {
-                    Some(num)
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>()
-    }
-}
-
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     // it looks like each card has two lists of numbers separated by a vertical bar (|):
     // a list of winning numbers and then a list of numbers you have
@@ -127,50 +105,32 @@ pub fn part2(cards: &ParsedInput) -> color_eyre::Result<usize> {
     Ok(card_results.iter().map(|(_, multiple)| multiple).sum())
 }
 
+#[derive(Clone, Debug)]
+pub struct Card {
+    pub id: usize,
+    pub winners: Vec<u32>,
+    pub numbers: Vec<u32>,
+}
+
+impl Card {
+    fn get_matches(&self) -> Vec<u32> {
+        self.numbers
+            .iter()
+            .filter_map(|&num| {
+                if self.winners.contains(&num) {
+                    Some(num)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>()
+    }
+}
+
 #[derive(Debug, thiserror::Error, PartialEq)]
 enum Year2023Day04Error {
     #[error("Failed to split on {0}")]
     Split(char),
     #[error("Failed to parse int {0}")]
     ParseInt(String),
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    const EXAMPLE: &str = "\
-Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
-Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
-Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1
-Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
-Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
-Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11";
-
-    #[test]
-    fn parse_test() {
-        let cards = parse(EXAMPLE).expect("Error parsing example input");
-
-        assert_eq!(cards.len(), 6);
-        assert_eq!(cards[0].winners, vec![41, 48, 83, 86, 17]);
-        assert_eq!(cards[1].numbers, vec![61, 30, 68, 82, 17, 32, 24, 19]);
-        assert_eq!(cards[2].winners, vec![1, 21, 53, 59, 44]);
-        assert_eq!(cards[2].numbers, vec![69, 82, 63, 72, 16, 21, 14, 1]);
-    }
-
-    #[test]
-    fn part1_test() {
-        let input = parse(EXAMPLE).expect("Failed to parse example input");
-        let answer = part1(&input).expect("Error solving part 1");
-
-        assert_eq!(answer, 13);
-    }
-
-    #[test]
-    fn part2_test() {
-        let input = parse(EXAMPLE).expect("Failed to parse example input");
-        let answer = part2(&input).expect("Error solving part 2");
-
-        assert_eq!(answer, 30);
-    }
 }
