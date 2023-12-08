@@ -1,21 +1,21 @@
 use itertools::Itertools;
 use std::{num::ParseIntError, ops::Range, str::FromStr};
 
+use crate::error::AdventError;
+
 type ParsedInput = Almanac;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
-    use Year2023Day05Error::*;
-
     let input = input.replace("\r\n", "\n");
 
     let (seeds, maps) = input
         .split_once("\n\n")
-        .ok_or(ParseAlmanac("Failed to split seeds from maps".to_string()))?;
+        .ok_or(AdventError::SplitOnce(input.to_string(), "\n\n".into()))?;
 
     // seeds: 79 14 55 13
-    let (_, seeds) = seeds.split_once(':').ok_or(ParseAlmanac(
-        format!("Failed to split seeds line: {seeds}").to_string(),
-    ))?;
+    let (_, seeds) = seeds
+        .split_once(':')
+        .ok_or(AdventError::SplitOnce(seeds.into(), ':'.into()))?;
 
     let seeds_pt1 = seeds
         .split_ascii_whitespace()
@@ -36,7 +36,7 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     let maps = maps
         .split("\n\n")
         .map(Map::from_str)
-        .collect::<Result<Vec<_>, Year2023Day05Error>>()?;
+        .collect::<Result<Vec<_>, AdventError>>()?;
 
     Ok(Almanac {
         seeds_pt1,
@@ -94,7 +94,7 @@ pub struct Map {
 }
 
 impl FromStr for Map {
-    type Err = Year2023Day05Error;
+    type Err = AdventError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // seed-to-soil map:
@@ -190,26 +190,18 @@ pub struct Mapping {
 }
 
 impl FromStr for Mapping {
-    type Err = Year2023Day05Error;
+    type Err = AdventError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // 50 98 2
         // dest_min source_min range_len
-        use Year2023Day05Error::*;
-
         let splits = s.split_ascii_whitespace().collect::<Vec<_>>();
         if splits.len() != 3 {
-            return Err(ParseMapping(format!(
-                "Found {} items in mapping, expected 3: {}",
-                splits.len(),
-                s
-            )));
+            return Err(AdventError::UnexpectedValue(3.to_string(), splits.len().to_string()));
         }
 
-        let parse_u64 = |s: &str| -> Result<u64, Year2023Day05Error> {
-            s.parse().map_err(|err: std::num::ParseIntError| {
-                ParseInt(format!("Parse error for '{s}': {}", err))
-            })
+        let parse_u64 = |s: &str| -> Result<u64, AdventError> {
+            s.parse().map_err(|err: ParseIntError| err.into())
         };
 
         let dest_min = parse_u64(splits[0])?;
@@ -221,14 +213,4 @@ impl FromStr for Mapping {
             dest_range: dest_min..(dest_min + range),
         })
     }
-}
-
-#[derive(Debug, thiserror::Error, PartialEq)]
-pub enum Year2023Day05Error {
-    #[error("Failed to parse almanac: {0}")]
-    ParseAlmanac(String),
-    #[error("Failed to parse mapping: {0}")]
-    ParseMapping(String),
-    #[error("Failed to parse int: {0}")]
-    ParseInt(String),
 }

@@ -1,26 +1,26 @@
+use crate::error::AdventError;
+
 type ParsedInput = Vec<Card>;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     // it looks like each card has two lists of numbers separated by a vertical bar (|):
     // a list of winning numbers and then a list of numbers you have
     // Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
-    use Year2023Day04Error::*;
-
     let mut cards = Vec::new();
 
     for line in input.lines() {
-        let (id, card) = line.split_once(':').ok_or(Split(':'))?;
+        let (id, card) = line
+            .split_once(':')
+            .ok_or(AdventError::SplitOnce(line.into(), ':'.into()))?;
 
-        let (_, id) = id.split_once(' ').ok_or(Split(' '))?;
-        let id =
-            id.to_string()
-                .trim()
-                .parse::<usize>()
-                .map_err(|err: std::num::ParseIntError| {
-                    ParseInt(format!("Parse error for '{id}': {}", err))
-                })?;
+        let (_, id) = id
+            .split_once(' ')
+            .ok_or(AdventError::SplitOnce(id.into(), ' '.into()))?;
+        let id = id.to_string().trim().parse::<usize>()?;
 
-        let (winners, numbers) = card.split_once('|').ok_or(Split('|'))?;
+        let (winners, numbers) = card
+            .split_once('|')
+            .ok_or(AdventError::SplitOnce(card.into(), '|'.into()))?;
 
         let winners = winners
             .split_whitespace()
@@ -125,12 +125,4 @@ impl Card {
             })
             .collect::<Vec<_>>()
     }
-}
-
-#[derive(Debug, thiserror::Error, PartialEq)]
-enum Year2023Day04Error {
-    #[error("Failed to split on {0}")]
-    Split(char),
-    #[error("Failed to parse int {0}")]
-    ParseInt(String),
 }

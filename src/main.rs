@@ -1,4 +1,7 @@
-use std::iter::empty;
+use std::{
+    iter::empty,
+    time::{Duration, Instant},
+};
 
 use advent_of_code::*;
 use clap::Parser;
@@ -17,11 +20,18 @@ fn main() -> color_eyre::eyre::Result<()> {
     let (year, day) = parse_args(&args);
 
     for puzzle in get_puzzles(year, day) {
-        let (part1, part2) = (puzzle.solve)(puzzle.input)?;
+        let result = (puzzle.solve)(puzzle.input)?;
 
         println!(
-            "{}::{} - Part1 = {part1}, Part2 = {part2}",
-            puzzle.year, puzzle.day
+            "{}::{} - Part1 = {} in {}s, Part2 = {} in {}s, Parsed in {}s, Total in {}s",
+            puzzle.year,
+            puzzle.day,
+            result.part1.answer,
+            result.part1.time_s,
+            result.part2.answer,
+            result.part2.time_s,
+            result.parse_time_s,
+            result.total_time(),
         );
     }
 
@@ -52,7 +62,24 @@ struct Puzzle {
     year: String,
     day: String,
     input: &'static str,
-    solve: fn(&str) -> color_eyre::Result<(String, String)>,
+    solve: fn(&str) -> color_eyre::Result<PuzzleResult>,
+}
+
+struct PuzzleResult {
+    parse_time_s: f32,
+    part1: PartResult,
+    part2: PartResult,
+}
+
+impl PuzzleResult {
+    fn total_time(&self) -> f32 {
+        self.parse_time_s + self.part1.time_s + self.part2.time_s
+    }
+}
+
+struct PartResult {
+    answer: String,
+    time_s: f32,
 }
 
 macro_rules! solution {
@@ -69,10 +96,26 @@ macro_rules! solution {
             ]),
             solve: |raw: &str| {
                 use $year::$day::*;
+
+                let start = Instant::now();
                 let input = parse(raw)?;
-                let part1 = part1(&input)?.to_string();
-                let part2 = part2(&input)?.to_string();
-                Ok((part1, part2))
+                let parse_time_s = start.elapsed().as_secs_f32();
+
+                let start = Instant::now();
+                let answer = part1(&input)?.to_string();
+                let time_s = start.elapsed().as_secs_f32();
+                let part1 = PartResult { answer, time_s };
+
+                let start = Instant::now();
+                let answer = part2(&input)?.to_string();
+                let time_s = start.elapsed().as_secs_f32();
+                let part2 = PartResult { answer, time_s };
+
+                Ok(PuzzleResult {
+                    parse_time_s,
+                    part1,
+                    part2,
+                })
             },
         }
     };
@@ -85,5 +128,8 @@ fn year2023() -> Vec<Puzzle> {
         solution!(year2023, day03),
         solution!(year2023, day04),
         solution!(year2023, day05),
+        solution!(year2023, day06),
+        solution!(year2023, day07),
+        solution!(year2023, day08),
     ]
 }

@@ -1,17 +1,21 @@
-use std::{num::ParseIntError, str::FromStr};
+use std::str::FromStr;
+
+use crate::error::AdventError;
 
 type ParsedInput = Vec<Game>;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     // E.g.: Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
-    use Year2023Day02Error::*;
-
     let mut games: Vec<Game> = Vec::new();
 
     for line in input.lines() {
-        let (game, draws) = line.split_once(':').ok_or(Split(':'))?;
+        let (game, draws) = line
+            .split_once(':')
+            .ok_or(AdventError::SplitOnce(line.into(), ':'.into()))?;
 
-        let (_, id) = game.split_once(' ').ok_or(Split(' '))?;
+        let (_, id) = game
+            .split_once(' ')
+            .ok_or(AdventError::SplitOnce(game.into(), ' '.into()))?;
         let mut game = Game::new(id.to_string().parse()?);
 
         let info = draws.trim();
@@ -89,16 +93,6 @@ pub fn part2(games: &ParsedInput) -> color_eyre::Result<u32> {
     Ok(sum)
 }
 
-#[derive(Debug, thiserror::Error, PartialEq)]
-pub enum Year2023Day02Error {
-    #[error("Failed to split on {0}")]
-    Split(char),
-    #[error("Failed to parse int: {0}")]
-    ParseInt(String),
-    #[error("Failed to parse colour: {0}")]
-    ParseColour(String),
-}
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct Game {
     pub id: u32,
@@ -135,23 +129,22 @@ pub enum Colour {
 }
 
 impl FromStr for Colour {
-    type Err = Year2023Day02Error;
+    type Err = AdventError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use Colour::*;
-        use Year2023Day02Error::*;
 
-        let (num, colour) = s.split_once(' ').ok_or(Split(' '))?;
-        let num: u32 = num
-            .to_string()
-            .parse()
-            .map_err(|err: ParseIntError| ParseInt(format!("Parse error for '{num}': {}", err)))?;
+        let (num, colour) = s
+            .split_once(' ')
+            .ok_or(AdventError::SplitOnce(s.into(), ' '.into()))?;
+        let num: u32 = num.to_string().parse()?;
+        //.map_err(|err: ParseIntError| ParseInt(format!("Parse error for '{num}': {}", err)))?;
 
         match colour {
             "red" => Ok(Red(num)),
             "green" => Ok(Green(num)),
             "blue" => Ok(Blue(num)),
-            _ => Err(ParseColour(colour.to_string())),
+            _ => Err(AdventError::StringToEnum(colour.into())),
         }
     }
 }
