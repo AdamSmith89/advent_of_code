@@ -1,23 +1,18 @@
-use std::{
-    iter::empty,
-    time::{Duration, Instant},
-};
+use std::{iter::empty, time::Instant};
 
 use advent_of_code::*;
 use clap::Parser;
 
 #[derive(Parser, Debug)]
 struct Args {
-    /// Run specific puzzle, e.g "year2022" or "year2022::day01"
-    #[arg(short, long, verbatim_doc_comment)]
+    /// Run specific puzzle(s), e.g "year2023" or "year2023::day01"
+    #[arg(short, long)]
     puzzle: Option<String>,
 }
 
 fn main() -> color_eyre::eyre::Result<()> {
     color_eyre::install()?;
-
-    let args = Args::parse();
-    let (year, day) = parse_args(&args);
+    let (year, day) = parse_args();
 
     for puzzle in get_puzzles(year, day) {
         let result = (puzzle.solve)(puzzle.input)?;
@@ -38,23 +33,25 @@ fn main() -> color_eyre::eyre::Result<()> {
     Ok(())
 }
 
-fn parse_args<'a>(args: &'a Args) -> (Option<&'a str>, Option<&'a str>) {
-    if let Some(puzzle) = &args.puzzle {
+fn parse_args<'a>() -> (Option<String>, Option<String>) {
+    let args = Args::parse();
+
+    if let Some(puzzle) = args.puzzle {
         if let Some((year, day)) = puzzle.split_once("::") {
-            (Some(year), Some(day))
+            (Some(year.into()), Some(day.into()))
         } else {
-            (Some(puzzle.as_str()), None)
+            (Some(puzzle), None)
         }
     } else {
         (None, None)
     }
 }
 
-fn get_puzzles(year: Option<&str>, day: Option<&str>) -> Vec<Puzzle> {
+fn get_puzzles(year: Option<String>, day: Option<String>) -> Vec<Puzzle> {
     empty()
         .chain(year2023())
-        .filter(|puzzle| year.map_or(true, |year| year == puzzle.year))
-        .filter(|puzzle| day.map_or(true, |day| day == puzzle.day))
+        .filter(|puzzle| year.as_ref().map_or(true, |year| *year == puzzle.year))
+        .filter(|puzzle| day.as_ref().map_or(true, |day| *day == puzzle.day))
         .collect::<Vec<_>>()
 }
 
@@ -82,7 +79,7 @@ struct PartResult {
     time_s: f32,
 }
 
-macro_rules! solution {
+macro_rules! puzzle {
     ($year:tt, $day:tt) => {
         Puzzle {
             year: stringify!($year).to_string(),
@@ -97,19 +94,13 @@ macro_rules! solution {
             solve: |raw: &str| {
                 use $year::$day::*;
 
-                let start = Instant::now();
-                let input = parse(raw)?;
-                let parse_time_s = start.elapsed().as_secs_f32();
+                let (input, parse_time_s) = timed_fn(|| parse(raw))?;
 
-                let start = Instant::now();
-                let answer = part1(&input)?.to_string();
-                let time_s = start.elapsed().as_secs_f32();
-                let part1 = PartResult { answer, time_s };
-
-                let start = Instant::now();
-                let answer = part2(&input)?.to_string();
-                let time_s = start.elapsed().as_secs_f32();
-                let part2 = PartResult { answer, time_s };
+                let (answer, time_s) = timed_fn(|| part1(&input))?;
+                let part1 = PartResult { answer: answer.to_string(), time_s };
+                
+                let (answer, time_s) = timed_fn(|| part2(&input))?;
+                let part2 = PartResult { answer: answer.to_string(), time_s };
 
                 Ok(PuzzleResult {
                     parse_time_s,
@@ -121,15 +112,26 @@ macro_rules! solution {
     };
 }
 
+fn timed_fn<F, T>(f: F) -> color_eyre::Result<(T, f32)>
+where
+    F: Fn() -> color_eyre::Result<T>
+{
+    let start = Instant::now();
+    let result = f()?;
+    let elapsed_s = start.elapsed().as_secs_f32();
+
+    Ok((result, elapsed_s))
+}
+
 fn year2023() -> Vec<Puzzle> {
     vec![
-        solution!(year2023, day01),
-        solution!(year2023, day02),
-        solution!(year2023, day03),
-        solution!(year2023, day04),
-        solution!(year2023, day05),
-        solution!(year2023, day06),
-        solution!(year2023, day07),
-        solution!(year2023, day08),
+        puzzle!(year2023, day01),
+        puzzle!(year2023, day02),
+        puzzle!(year2023, day03),
+        puzzle!(year2023, day04),
+        puzzle!(year2023, day05),
+        puzzle!(year2023, day06),
+        puzzle!(year2023, day07),
+        puzzle!(year2023, day08),
     ]
 }
