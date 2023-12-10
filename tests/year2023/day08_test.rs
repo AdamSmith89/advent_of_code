@@ -74,5 +74,5 @@ fn part2_real() {
     let parsed = parse(input).expect("Error parsing input");
     let answer = part2(&parsed).expect("Error solving part 2");
 
-    assert_eq!(answer, todo!());
+    assert_eq!(answer, 10151663816849);
 }

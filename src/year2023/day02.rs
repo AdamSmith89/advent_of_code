@@ -138,7 +138,6 @@ impl FromStr for Colour {
             .split_once(' ')
             .ok_or(AdventError::SplitOnce(s.into(), ' '.into()))?;
         let num: u32 = num.to_string().parse()?;
-        //.map_err(|err: ParseIntError| ParseInt(format!("Parse error for '{num}': {}", err)))?;
 
         match colour {
             "red" => Ok(Red(num)),

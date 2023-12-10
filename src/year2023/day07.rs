@@ -39,7 +39,7 @@ fn get_winnings(rounds: &ParsedInput, jacks_wild: bool) -> color_eyre::Result<u6
     let winnings = rounds
         .iter()
         .enumerate()
-        .map(|(rank, (hand, bid))| {
+        .map(|(rank, (_, bid))| {
             bid * (rank as u64 + 1)
         })
         .sum();

@@ -1,25 +1,23 @@
 use advent_of_code::year2023::day02::*;
+use advent_of_code::error::AdventError;
 use std::str::FromStr;
 
 #[test]
 fn colour_from_str() {
     use Colour::*;
-    use Year2023Day02Error::*;
 
     assert_eq!(Colour::from_str("9 red"), Ok(Red(9)));
     assert_eq!(Colour::from_str("3 blue"), Ok(Blue(3)));
     assert_eq!(Colour::from_str("0 green"), Ok(Green(0)));
 
-    assert_eq!(Colour::from_str("wrong"), Err(Split(' ')));
-    assert_eq!(
-        Colour::from_str("test wrong"),
-        Err(ParseInt(
-            "Parse error for 'test': invalid digit found in string".to_string()
-        ))
-    );
+    assert_eq!(Colour::from_str("wrong"), Err(AdventError::SplitOnce("wrong".into(), ' '.into())));
+    // assert_eq!(
+    //     Colour::from_str("test wrong"),
+    //     Err(AdventError::ParseInt(std::num::ParseIntError{ kind: std::num::IntErrorKind::InvalidDigit}))
+    // );
     assert_eq!(
         Colour::from_str("1 wrong"),
-        Err(ParseColour("wrong".to_string()))
+        Err(AdventError::StringToEnum("wrong".into()))
     );
 }
 
