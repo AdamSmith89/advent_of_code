@@ -2,6 +2,14 @@ use advent_of_code::error::AdventError;
 use advent_of_code::year2023::day02::*;
 use std::str::FromStr;
 
+const PUZZLE_INPUT: &str = include_str!("../../input/year2023/day02.txt");
+const EXAMPLE_INPUT: &str = "\
+Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
+
 #[test]
 fn colour_from_str() {
     use Colour::*;
@@ -28,7 +36,7 @@ fn colour_from_str() {
 fn parse_one() {
     use Colour::*;
     let parsed = parse("Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green")
-        .expect("Failed to parse test input");
+        .expect("Error parsing input");
 
     let expected = vec![Game {
         id: 5,
@@ -48,7 +56,7 @@ fn parse_one() {
 #[test]
 fn parse_two_digit() {
     use Colour::*;
-    let parsed = parse("Game 1: 20 red").expect("Failed to parse test input");
+    let parsed = parse("Game 1: 20 red").expect("Error parsing input");
 
     let expected = vec![Game {
         id: 1,
@@ -69,7 +77,7 @@ fn parse_multiple() {
 Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green",
     )
-    .expect("Failed to parse test input");
+    .expect("Error parsing input");
 
     let expected = vec![
         Game {
@@ -102,25 +110,34 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green",
     assert_eq!(parsed, expected);
 }
 
-const EXAMPLE: &str = "\
-Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
-Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
-Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
-
 #[test]
-fn part1_test() {
-    let input = parse(EXAMPLE).expect("Failed to parse test input");
+fn part1_example() {
+    let input = parse(EXAMPLE_INPUT).expect("Error parsing input");
+    let answer = part1(&input).expect("Error solving part 1");
 
-    let answer = part1(&input).expect("Failed to calculate answer");
     assert_eq!(answer, 8);
 }
 
 #[test]
-fn part2_test() {
-    let input = parse(EXAMPLE).expect("Failed to parse test input");
+fn part1_real() {
+    let input = parse(PUZZLE_INPUT).expect("Error parsing input");
+    let answer = part1(&input).expect("Error solving part 1");
 
-    let answer = part2(&input).expect("Failed to calculate answer");
+    assert_eq!(answer, 2679);
+}
+
+#[test]
+fn part2_example() {
+    let input = parse(EXAMPLE_INPUT).expect("Error parsing input");
+    let answer = part2(&input).expect("Error solving part 2");
+
     assert_eq!(answer, 2286);
+}
+
+#[test]
+fn part2_real() {
+    let input = parse(PUZZLE_INPUT).expect("Error parsing input");
+    let answer = part2(&input).expect("Error solving part 2");
+
+    assert_eq!(answer, 77607);
 }
