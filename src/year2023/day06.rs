@@ -54,12 +54,11 @@ pub fn part1(input: &ParsedInput) -> color_eyre::Result<u64> {
 
     let mut race_wins = Vec::new();
     for race in &input.part1 {
-        let first_win_index = (0..=race.time)
-            .skip_while(|hold_time| hold_time * (race.time - hold_time) <= race.dist)
-            .next()
+        let first_loss_index = (0..=race.time)
+            .find(|hold_time| hold_time * (race.time - hold_time) > race.dist)
             .unwrap();
 
-        race_wins.push(race.time - (2 * first_win_index) + 1);
+        race_wins.push(race.time - (2 * first_loss_index) + 1);
     }
 
     Ok(race_wins.iter().product())
@@ -68,12 +67,11 @@ pub fn part1(input: &ParsedInput) -> color_eyre::Result<u64> {
 pub fn part2(input: &ParsedInput) -> color_eyre::Result<u64> {
     let race = &input.part2;
 
-    let first_win_index = (0..=race.time)
-        .skip_while(|hold_time| hold_time * (race.time - hold_time) <= race.dist)
-        .next()
+    let first_loss_index = (0..=race.time)
+        .find(|hold_time| hold_time * (race.time - hold_time) > race.dist)
         .unwrap();
 
-    Ok(race.time - (2 * first_win_index) + 1)
+    Ok(race.time - (2 * first_loss_index) + 1)
 }
 
 #[derive(Debug, Eq, PartialEq)]
