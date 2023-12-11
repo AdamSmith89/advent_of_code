@@ -23,7 +23,8 @@ sed -i "s/DD/$DAY/g" ./tests/$YEAR/${DAY}_test.rs
 
 sed -i "/\/\/ NEXT/i mod ${DAY}_test;" ./tests/test.rs
 rustfmt ./tests/test.rs
-echo "✔️\n"
+echo ✔️
+echo
 
 echo "======Input File======"
 echo -n "Setting up input file..."
@@ -40,8 +41,9 @@ else
     DAY_NUM=(${DAY//day/ })
     
     echo -n ⬇️
-    curl -o ./input/$YEAR/$DAY.txt https://adventofcode.com/$YEAR_NUM/day/$DAY_NUM/input --cookie "session=$SESSION"
+    curl -o ./input/$YEAR/$DAY.txt https://adventofcode.com/$YEAR_NUM/day/$DAY_NUM/input --cookie "session=$SESSION" 2>/dev/null
     echo ✔️
 fi
 
-echo "\nHappy puzzling! 🎅"
+echo
+echo "Happy puzzling! 🎅"
