@@ -1,6 +1,7 @@
 use advent_of_code::year2023::day05::*;
 
-const EXAMPLE: &str = "\
+const PUZZLE_INPUT: &str = include_str!("../../input/year2023/day05.txt");
+const EXAMPLE_INPUT: &str = "\
 seeds: 79 14 55 13
 
 seed-to-soil map:
@@ -36,8 +37,8 @@ humidity-to-location map:
 56 93 4";
 
 #[test]
-fn parse_test() {
-    let parsed = parse(EXAMPLE).expect("Error parsing example input");
+fn parse_example() {
+    let parsed = parse(EXAMPLE_INPUT).expect("Error parsing example input");
 
     assert_eq!(parsed.seeds_pt1, vec![79, 14, 55, 13]);
     assert_eq!(parsed.seeds_pt2, vec![79..93, 55..68]);
@@ -59,19 +60,35 @@ fn parse_test() {
 }
 
 #[test]
-fn part1_test() {
-    let input = parse(EXAMPLE).expect("Error parsing example input");
+fn part1_example() {
+    let input = parse(EXAMPLE_INPUT).expect("Error parsing example input");
     let answer = part1(&input).expect("Error solving part 1");
 
     assert_eq!(answer, 35);
 }
 
 #[test]
-fn part2_test() {
-    let input = parse(EXAMPLE).expect("Error parsing example input");
+fn part1_real() {
+    let input = parse(PUZZLE_INPUT).expect("Error parsing example input");
+    let answer = part1(&input).expect("Error solving part 1");
+
+    assert_eq!(answer, 806029445);
+}
+
+#[test]
+fn part2_example() {
+    let input = parse(EXAMPLE_INPUT).expect("Error parsing example input");
     let answer = part2(&input).expect("Error solving part 2");
 
     assert_eq!(answer, 46);
+}
+
+#[test]
+fn part2_real() {
+    let input = parse(PUZZLE_INPUT).expect("Error parsing example input");
+    let answer = part2(&input).expect("Error solving part 2");
+
+    assert_eq!(answer, 59370572);
 }
 
 #[test]
