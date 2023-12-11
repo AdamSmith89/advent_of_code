@@ -1,5 +1,18 @@
 use advent_of_code::year2023::day03::*;
 
+const PUZZLE_INPUT: &str = include_str!("../../input/year2023/day03.txt");
+const EXAMPLE_INPUT: &str = "\
+467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..";
+
 #[test]
 fn parse_test() {
     let input = "\
@@ -14,32 +27,36 @@ cdefgh
     assert_eq!(grid[(2, 4)], 'g');
 }
 
-const EXAMPLE: &str = "\
-467..114..
-...*......
-..35..633.
-......#...
-617*......
-.....+.58.
-..592.....
-......755.
-...$.*....
-.664.598..";
-
 #[test]
-fn part1_test() {
-    let input = parse(EXAMPLE).expect("Error parsing input");
+fn part1_example() {
+    let input = parse(EXAMPLE_INPUT).expect("Error parsing input");
     let answer = part1(&input).expect("Error solving part 1");
 
     assert_eq!(answer, 4361);
 }
 
 #[test]
-fn part2_test() {
-    let input = parse(EXAMPLE).expect("Error parsing input");
+fn part1_real() {
+    let input = parse(PUZZLE_INPUT).expect("Error parsing input");
+    let answer = part1(&input).expect("Error solving part 1");
+
+    assert_eq!(answer, 557705);
+}
+
+#[test]
+fn part2_example() {
+    let input = parse(EXAMPLE_INPUT).expect("Error parsing input");
     let answer = part2(&input).expect("Error solving part 2");
 
     assert_eq!(answer, 467835);
+}
+
+#[test]
+fn part2_real() {
+    let input = parse(PUZZLE_INPUT).expect("Error parsing input");
+    let answer = part2(&input).expect("Error solving part 2");
+
+    assert_eq!(answer, 84266818);
 }
 
 #[test]
