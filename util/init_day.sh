@@ -39,9 +39,10 @@ else
     
     YEAR_NUM=(${YEAR//year/ })
     DAY_NUM=(${DAY//day/ })
+    DAY_NUM_STRIPPED=${DAY_NUM#0}
     
     echo -n ⬇️
-    curl -o ./input/$YEAR/$DAY.txt https://adventofcode.com/$YEAR_NUM/day/$DAY_NUM/input --cookie "session=$SESSION" 2>/dev/null
+    curl -o ./input/$YEAR/$DAY.txt https://adventofcode.com/$YEAR_NUM/day/$DAY_NUM_STRIPPED/input --cookie "session=$SESSION" 2>/dev/null
     echo ✔️
 fi
 
