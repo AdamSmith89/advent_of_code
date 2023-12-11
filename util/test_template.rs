@@ -1,6 +1,6 @@
-use advent_of_code::yearYYYY::dayDD::*;
+use advent_of_code::YYYY::DD::*;
 
-const PUZZLE_INPUT: &str = include_str!("../../input/yearYYYY/dayDD.txt");
+const PUZZLE_INPUT: &str = include_str!("../../input/YYYY/DD.txt");
 const EXAMPLE_INPUT: &str = "\
 ";
 

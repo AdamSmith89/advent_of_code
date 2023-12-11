@@ -197,7 +197,10 @@ impl FromStr for Mapping {
         // dest_min source_min range_len
         let splits = s.split_ascii_whitespace().collect::<Vec<_>>();
         if splits.len() != 3 {
-            return Err(AdventError::UnexpectedValue(3.to_string(), splits.len().to_string()));
+            return Err(AdventError::UnexpectedValue(
+                3.to_string(),
+                splits.len().to_string(),
+            ));
         }
 
         let parse_u64 = |s: &str| -> Result<u64, AdventError> {

@@ -1,13 +1,17 @@
 use itertools::Itertools;
-use std::collections::HashMap;
 use num::integer::lcm;
+use std::collections::HashMap;
 
 type ParsedInput = Docs;
 use crate::error::AdventError;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     let mut lines = input.lines();
-    let steps = lines.next().ok_or(AdventError::EndOfIterator)?.chars().collect_vec();
+    let steps = lines
+        .next()
+        .ok_or(AdventError::EndOfIterator)?
+        .chars()
+        .collect_vec();
 
     lines.next(); // Skip the blank line
 
@@ -62,7 +66,10 @@ pub fn part2(docs: &ParsedInput) -> color_eyre::Result<u64> {
         .map(|start_node| solve(docs, &start_node, at_end))
         .collect::<Result<Vec<u64>, AdventError>>()?;
 
-    let coal = steps.into_iter().coalesce(|prev, cur| Ok(lcm(prev, cur))).collect_vec();
+    let coal = steps
+        .into_iter()
+        .coalesce(|prev, cur| Ok(lcm(prev, cur)))
+        .collect_vec();
 
     Ok(coal[0])
 }

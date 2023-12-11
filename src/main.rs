@@ -97,10 +97,16 @@ macro_rules! puzzle {
                 let (input, parse_time_s) = timed_fn(|| parse(raw))?;
 
                 let (answer, time_s) = timed_fn(|| part1(&input))?;
-                let part1 = PartResult { answer: answer.to_string(), time_s };
-                
+                let part1 = PartResult {
+                    answer: answer.to_string(),
+                    time_s,
+                };
+
                 let (answer, time_s) = timed_fn(|| part2(&input))?;
-                let part2 = PartResult { answer: answer.to_string(), time_s };
+                let part2 = PartResult {
+                    answer: answer.to_string(),
+                    time_s,
+                };
 
                 Ok(PuzzleResult {
                     parse_time_s,
@@ -114,7 +120,7 @@ macro_rules! puzzle {
 
 fn timed_fn<F, T>(f: F) -> color_eyre::Result<(T, f32)>
 where
-    F: Fn() -> color_eyre::Result<T>
+    F: Fn() -> color_eyre::Result<T>,
 {
     let start = Instant::now();
     let result = f()?;
@@ -134,5 +140,6 @@ fn year2023() -> Vec<Puzzle> {
         puzzle!(year2023, day07),
         puzzle!(year2023, day08),
         puzzle!(year2023, day09),
+        // NEXT
     ]
 }

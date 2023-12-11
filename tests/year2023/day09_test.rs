@@ -72,7 +72,9 @@ fn part2_real() {
 
 #[test]
 fn find_next_pos() {
-    let reading = Reading { history: vec![0, 3, 6, 9, 12, 15] };
+    let reading = Reading {
+        history: vec![0, 3, 6, 9, 12, 15],
+    };
     let resolved = next_in_sequence(&reading).expect("Error resolving sequence");
 
     assert_eq!(resolved, 18);
@@ -80,7 +82,9 @@ fn find_next_pos() {
 
 #[test]
 fn find_next_neg() {
-    let reading = Reading { history: vec![0, 3, -2, 4, 1, 6] };
+    let reading = Reading {
+        history: vec![0, 3, -2, 4, 1, 6],
+    };
     let resolved = next_in_sequence(&reading).expect("Error resolving sequence");
 
     assert_eq!(resolved, 149);

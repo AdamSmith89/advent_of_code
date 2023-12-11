@@ -17,7 +17,7 @@ ZZZ = (ZZZ, ZZZ)";
 fn parse_test() {
     let parsed = parse(PART1_EXAMPLE).expect("Error parsing input");
 
-    assert_eq!(parsed.steps, vec!['R', 'L'] );
+    assert_eq!(parsed.steps, vec!['R', 'L']);
     assert_hashmap(&parsed.network, "AAA", ("BBB", "CCC"));
     assert_hashmap(&parsed.network, "BBB", ("DDD", "EEE"));
     assert_hashmap(&parsed.network, "CCC", ("ZZZ", "GGG"));
@@ -28,7 +28,10 @@ fn parse_test() {
 }
 
 fn assert_hashmap(map: &HashMap<String, (String, String)>, k: &str, v: (&str, &str)) {
-    assert_eq!(map.get(&k.to_string()), Some(&(v.0.to_string(), v.1.to_string())));
+    assert_eq!(
+        map.get(&k.to_string()),
+        Some(&(v.0.to_string(), v.1.to_string()))
+    );
 }
 
 #[test]

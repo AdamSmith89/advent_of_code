@@ -39,9 +39,7 @@ fn get_winnings(rounds: &ParsedInput, jacks_wild: bool) -> color_eyre::Result<u6
     let winnings = rounds
         .iter()
         .enumerate()
-        .map(|(rank, (_, bid))| {
-            bid * (rank as u64 + 1)
-        })
+        .map(|(rank, (_, bid))| bid * (rank as u64 + 1))
         .sum();
 
     Ok(winnings)
@@ -57,7 +55,9 @@ impl FromStr for Round {
     type Err = AdventError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (hand, bid) = s.split_once(' ').ok_or(AdventError::SplitOnce(s.into(), ' '.into()))?;
+        let (hand, bid) = s
+            .split_once(' ')
+            .ok_or(AdventError::SplitOnce(s.into(), ' '.into()))?;
 
         Ok(Round {
             hand: hand.chars().collect_vec(),

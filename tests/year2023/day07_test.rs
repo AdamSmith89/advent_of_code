@@ -12,13 +12,31 @@ QQQJA 483";
 fn parse_test() {
     let parsed = parse(EXAMPLE).expect("Error parsing example input");
 
-    assert_eq!(parsed, vec![
-        Round { hand: "32T3K".chars().collect_vec(), bid: 765},
-        Round { hand: "T55J5".chars().collect_vec(), bid: 684},
-        Round { hand: "KK677".chars().collect_vec(), bid: 28},
-        Round { hand: "KTJJT".chars().collect_vec(), bid: 220},
-        Round { hand: "QQQJA".chars().collect_vec(), bid: 483},
-    ]);
+    assert_eq!(
+        parsed,
+        vec![
+            Round {
+                hand: "32T3K".chars().collect_vec(),
+                bid: 765
+            },
+            Round {
+                hand: "T55J5".chars().collect_vec(),
+                bid: 684
+            },
+            Round {
+                hand: "KK677".chars().collect_vec(),
+                bid: 28
+            },
+            Round {
+                hand: "KTJJT".chars().collect_vec(),
+                bid: 220
+            },
+            Round {
+                hand: "QQQJA".chars().collect_vec(),
+                bid: 483
+            },
+        ]
+    );
 }
 
 #[test]
