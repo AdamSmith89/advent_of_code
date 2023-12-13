@@ -14,8 +14,12 @@ fn main() -> color_eyre::eyre::Result<()> {
     color_eyre::install()?;
     let (year, day) = parse_args();
 
-    for puzzle in get_puzzles(year, day) {
+    let puzzles = get_puzzles(year, day);
+    let mut total_time = 0f32;
+
+    for puzzle in &puzzles {
         let result = (puzzle.solve)(puzzle.input)?;
+        total_time += result.total_time();
 
         println!(
             "{}::{} - Part1 = {} in {}s, Part2 = {} in {}s, Parsed in {}s, Total in {}s",
@@ -28,6 +32,10 @@ fn main() -> color_eyre::eyre::Result<()> {
             result.parse_time_s,
             result.total_time(),
         );
+    }
+
+    if puzzles.len() > 1 {
+        println!("Puzzles solved = {} in {total_time}s", puzzles.len());
     }
 
     Ok(())
@@ -140,7 +148,7 @@ fn year2023() -> Vec<Puzzle> {
         puzzle!(year2023, day07),
         puzzle!(year2023, day08),
         puzzle!(year2023, day09),
-        puzzle!(year2023, day10),
+        //puzzle!(year2023, day10),
         puzzle!(year2023, day11),
         puzzle!(year2023, day12),
         puzzle!(year2023, day13),
