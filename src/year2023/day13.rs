@@ -104,10 +104,3 @@ fn find_mirror(grid: &mut Grid<char>, detect_smudge: bool) -> Option<usize> {
 
     mirror_row
 }
-
-fn print_grid(grid: &Grid<char>) {
-    for row in grid.iter_rows() {
-        row.for_each(|ch| print!("{ch}"));
-        println!();
-    }
-}
