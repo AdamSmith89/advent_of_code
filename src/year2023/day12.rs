@@ -97,7 +97,6 @@ fn solve<'a>(
     }
 
     // No springs but some groups left
-    // Can this be no #'s or ?'s left?
     if springs.is_empty() {
         return Ok(0);
     }
@@ -128,6 +127,7 @@ fn resolve_pound<'a>(
     if next_group > springs.len() {
         return Ok(0);
     }
+    
     let this_group = &springs[..next_group];
 
     // Some of the springs in the proposed group are '.' which is invalid
@@ -152,74 +152,6 @@ fn resolve_pound<'a>(
 
     // The next character is '#' which wouldn't be valid for this group
     Ok(0)
-}
-
-fn solve_row(springs: &mut [char], groups: &mut [usize]) -> bool {
-    // println!("{springs:?}");
-    // println!("{groups:?}");
-    let mut groups = groups.to_vec();
-
-    let mut exact_finds = Vec::new();
-
-    let mut i = springs.iter().enumerate();
-    while let Some((idx, spring)) = i.next() {
-        if *spring == '#' {
-            let prefix_not_q = if let Some(prev_idx) = idx.checked_sub(1) {
-                springs[prev_idx] == '.'
-            } else {
-                true
-            };
-
-            if prefix_not_q {
-                let _ = i.take_while_ref(|(_, &spring)| spring == '#').collect_vec();
-
-                if let Some((end_idx, spring)) = i.next() {
-                    if *spring == '.' {
-                        exact_finds.push((idx, end_idx - 1));
-                        // println!("# length = {}", end_idx - idx);
-                    }
-                } else {
-                    exact_finds.push((idx, springs.len() - 1));
-                    // println!("# length = {}", springs.len() - idx);
-                }
-            }
-        }
-    }
-
-    for (start_idx, end_idx) in exact_finds {
-        let size = end_idx - start_idx + 1;
-
-        let (idx, value) = groups
-            .iter()
-            .enumerate()
-            .find(|&(_, group)| *group == size)
-            .unwrap();
-        let s = &mut springs[start_idx..=end_idx];
-        s.fill(value.to_string().chars().next().unwrap());
-
-        groups.remove(idx);
-    }
-    // println!("{springs:?}");
-    // println!("{groups:?}");
-
-    // println!();
-
-    // if springs[0] == '.' {
-    //     return solve_row(&mut springs[1..], groups);
-    // } else if springs[0] == '?' || springs[0] == '#' {
-    //     let poss = &springs[..groups[0]];
-    //     if poss.iter().all(|v| *v == '?' || *v == '#') {
-    //         let springs = &springs[groups[0] + 1..];
-    //         let groups = &groups[1..];
-    //         return solve_row(&mut springs, &mut groups);
-    //     }
-    //     else {
-    //         let mut springs: &mut [char] = springs;
-    //         return solve_row(springs, groups);
-    //     }
-    // }
-
-    true
 }
 
 #[derive(Debug, Eq, PartialEq)]

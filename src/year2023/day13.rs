@@ -90,8 +90,8 @@ fn find_mirror(grid: &mut Grid<char>, detect_smudge: bool) -> Option<usize> {
                 }
             }
 
-            lhs_idx = lhs_idx - 1;
-            rhs_idx = rhs_idx + 1;
+            lhs_idx -= 1;
+            rhs_idx += 1;
 
             lhs = grid.iter_rows().nth(lhs_idx).unwrap().collect_vec();
             rhs = grid.iter_rows().nth(rhs_idx).unwrap().collect_vec();
