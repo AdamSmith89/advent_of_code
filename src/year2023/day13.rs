@@ -45,8 +45,6 @@ pub fn part2(grids: &ParsedInput) -> color_eyre::Result<usize> {
 
     let mut answer = 0;
     for grid in &mut grids {
-        print_grid(grid);
-
         if let Some(mirror_row) = find_mirror(grid, true) {
             let rows_above = mirror_row + 1;
             answer += rows_above * 100;
@@ -58,8 +56,6 @@ pub fn part2(grids: &ParsedInput) -> color_eyre::Result<usize> {
                 answer += cols_left;
             }
         }
-
-        println!();
     }
 
     Ok(answer)
