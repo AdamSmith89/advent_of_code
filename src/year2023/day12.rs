@@ -127,7 +127,7 @@ fn resolve_pound<'a>(
     if next_group > springs.len() {
         return Ok(0);
     }
-    
+
     let this_group = &springs[..next_group];
 
     // Some of the springs in the proposed group are '.' which is invalid

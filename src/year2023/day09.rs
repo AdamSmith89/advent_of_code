@@ -29,7 +29,7 @@ pub fn next_in_sequence(reading: &Reading) -> color_eyre::Result<i32> {
     let mut cur = reading.history.clone();
 
     while cur.iter().any(|v| *v != 0) {
-        lasts.push(cur.last().ok_or(AdventError::EmptySlice)?.clone());
+        lasts.push(*cur.last().ok_or(AdventError::EmptySlice)?);
 
         cur = cur.iter().tuple_windows().map(|(l, r)| r - l).collect_vec();
     }
@@ -42,7 +42,7 @@ pub fn prev_in_sequence(reading: &Reading) -> color_eyre::Result<i32> {
     let mut cur = reading.history.clone();
 
     while cur.iter().any(|v| *v != 0) {
-        firsts.push(cur.first().ok_or(AdventError::EmptySlice)?.clone());
+        firsts.push(*cur.first().ok_or(AdventError::EmptySlice)?);
 
         cur = cur.iter().tuple_windows().map(|(l, r)| r - l).collect_vec();
     }

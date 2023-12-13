@@ -33,7 +33,7 @@ fn main() -> color_eyre::eyre::Result<()> {
     Ok(())
 }
 
-fn parse_args<'a>() -> (Option<String>, Option<String>) {
+fn parse_args() -> (Option<String>, Option<String>) {
     let args = Args::parse();
 
     if let Some(puzzle) = args.puzzle {

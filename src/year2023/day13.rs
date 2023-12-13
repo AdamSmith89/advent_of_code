@@ -1,4 +1,3 @@
-use crate::error::AdventError;
 use grid::{grid, Grid};
 use itertools::Itertools;
 

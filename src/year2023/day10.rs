@@ -1,8 +1,8 @@
-use crate::error::AdventError;
+// use crate::error::AdventError;
 
 type ParsedInput = ();
 
-pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
+pub fn parse(_input: &str) -> color_eyre::Result<ParsedInput> {
     Ok(())
 }
 

@@ -44,9 +44,9 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
 }
 
 pub fn part1(docs: &ParsedInput) -> color_eyre::Result<u64> {
-    let start_node = "AAA".to_string();
+    let start_node = "AAA";
 
-    Ok(solve(docs, &start_node, |node| *node == "ZZZ".to_string())?)
+    Ok(solve(docs, start_node, |node| node == "ZZZ")?)
 }
 
 pub fn part2(docs: &ParsedInput) -> color_eyre::Result<u64> {
@@ -59,11 +59,11 @@ pub fn part2(docs: &ParsedInput) -> color_eyre::Result<u64> {
         .cloned()
         .collect_vec();
 
-    let at_end = |node: &String| node.ends_with('Z');
+    let at_end = |node: &str| node.ends_with('Z');
 
     let steps = start_nodes
         .iter()
-        .map(|start_node| solve(docs, &start_node, at_end))
+        .map(|start_node| solve(docs, start_node, at_end))
         .collect::<Result<Vec<u64>, AdventError>>()?;
 
     let coal = steps
@@ -74,11 +74,11 @@ pub fn part2(docs: &ParsedInput) -> color_eyre::Result<u64> {
     Ok(coal[0])
 }
 
-fn solve<F>(docs: &Docs, start_node: &String, at_end: F) -> Result<u64, AdventError>
+fn solve<F>(docs: &Docs, start_node: &str, at_end: F) -> Result<u64, AdventError>
 where
-    F: Fn(&String) -> bool,
+    F: Fn(&str) -> bool,
 {
-    let mut cur_node = start_node.clone();
+    let mut cur_node = start_node.to_owned();
     let mut dir_iter = docs.steps.iter().cycle();
     let mut steps_taken = 0;
 
@@ -86,7 +86,7 @@ where
         let next = docs
             .network
             .get(&cur_node)
-            .ok_or(AdventError::NotFound(cur_node.into()))?;
+            .ok_or(AdventError::NotFound(cur_node))?;
 
         let dir = dir_iter.next().unwrap();
         cur_node = match dir {

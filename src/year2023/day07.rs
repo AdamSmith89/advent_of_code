@@ -66,7 +66,7 @@ impl FromStr for Round {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum Hand {
     FiveKind(Vec<u32>),
     FourKind(Vec<u32>),
@@ -102,7 +102,7 @@ impl Hand {
         }
     }
 
-    fn new(cards: &Vec<char>, jacks_wild: bool) -> Result<Self, AdventError> {
+    fn new(cards: &[char], jacks_wild: bool) -> Result<Self, AdventError> {
         let hand = cards
             .iter()
             .filter_map(|ch| card_as_digit(ch, jacks_wild))
@@ -122,7 +122,7 @@ impl Hand {
         };
         let num_pairs = card_counts.iter().filter(|(count, _)| *count == 2).count();
 
-        let hand = match max {
+        match max {
             5 => Ok(Hand::FiveKind(hand)),
             4 => {
                 if num_jokers == 1 || num_jokers == 4 {
@@ -157,12 +157,10 @@ impl Hand {
                     } else {
                         Ok(Hand::TwoPair(hand))
                     }
+                } else if num_jokers >= 1 {
+                    Ok(Hand::ThreeKind(hand))
                 } else {
-                    if num_jokers >= 1 {
-                        Ok(Hand::ThreeKind(hand))
-                    } else {
-                        Ok(Hand::OnePair(hand))
-                    }
+                    Ok(Hand::OnePair(hand))
                 }
             }
             1 => {
@@ -173,24 +171,26 @@ impl Hand {
                 }
             }
             _ => Err(AdventError::UnknownPattern(max.to_string())),
-        };
-
-        hand
+        }
     }
 }
 
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Hand {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         if self.as_rank() > other.as_rank() {
-            Some(std::cmp::Ordering::Greater)
+            std::cmp::Ordering::Greater
         } else if self.as_rank() < other.as_rank() {
-            Some(std::cmp::Ordering::Less)
+            std::cmp::Ordering::Less
+        } else if self.raw().gt(&other.raw()) {
+            std::cmp::Ordering::Greater
         } else {
-            if self.raw().gt(&other.raw()) {
-                Some(std::cmp::Ordering::Greater)
-            } else {
-                Some(std::cmp::Ordering::Less)
-            }
+            std::cmp::Ordering::Less
         }
     }
 }
