@@ -61,7 +61,6 @@ fn part2_example() {
     // 100 times larger = 8410
     // 1000000 times larger = 82000210
     assert_eq!(answer, 82000210);
-
 }
 
 #[test]
