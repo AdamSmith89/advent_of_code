@@ -15,3 +15,4 @@ Cargo.lock
 
 # AOC personal input files
 input/
+util/aoc_session.txt

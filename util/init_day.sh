@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Input e.g. year2023::day01
 YEAR_DAY=(${1//::/ })
 YEAR=${YEAR_DAY[0]}
