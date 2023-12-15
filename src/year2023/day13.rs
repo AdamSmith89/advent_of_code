@@ -1,5 +1,6 @@
-use grid::{grid, Grid};
 use itertools::Itertools;
+
+use crate::util::grid::Grid;
 
 type ParsedInput = Vec<Grid<char>>;
 
@@ -8,14 +9,8 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
 
     let grids = input.split("\n\n").collect_vec();
     Ok(grids
-        .iter()
-        .map(|grid| {
-            let mut parsed_grid = grid![];
-            for line in grid.lines() {
-                parsed_grid.push_row(line.chars().collect_vec());
-            }
-            parsed_grid
-        })
+        .into_iter()
+        .map_into()
         .collect_vec())
 }
 

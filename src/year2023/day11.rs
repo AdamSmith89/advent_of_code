@@ -1,13 +1,13 @@
-use std::fmt::{Debug, Write};
+use std::fmt::Debug;
 
 use crate::error::AdventError;
-use grid::{grid, Grid};
+use crate::util::grid::Grid;
 use itertools::Itertools;
 
 type ParsedInput = Universe;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
-    let mut grid = grid![];
+    let mut grid = Grid::new(0, 0);
 
     for line in input.lines() {
         let row = line.chars().collect_vec();
@@ -47,7 +47,7 @@ pub fn part2(universe: &ParsedInput) -> color_eyre::Result<u64> {
     Ok(distances.iter().sum())
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Universe {
     pub grid: Grid<char>,
 }
@@ -110,19 +110,5 @@ impl Universe {
         let col_diff = col_diff + (extra_cols * (expansion - 2));
 
         row_diff + col_diff
-    }
-}
-
-impl Debug for Universe {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("\n").unwrap();
-        self.grid.iter_rows().for_each(|row| {
-            row.for_each(|ch| {
-                f.write_char(*ch).unwrap();
-            });
-            f.write_str("\n").unwrap();
-        });
-
-        Ok(())
     }
 }

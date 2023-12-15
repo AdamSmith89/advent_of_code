@@ -1,17 +1,11 @@
 use std::collections::HashSet;
 
-use grid::*;
+use crate::util::grid::Grid;
 
 type ParsedInput = Grid<char>;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
-    let mut grid: ParsedInput = Grid::new(0, 0);
-
-    for line in input.lines() {
-        grid.push_row(line.chars().collect());
-    }
-
-    Ok(grid)
+    Ok(input.into())
 }
 
 pub fn part1(grid: &ParsedInput) -> color_eyre::Result<u32> {
@@ -120,8 +114,7 @@ fn build_number_at_point(grid: &Grid<char>, row: usize, col: usize) -> (u32, Vec
     let mut number = String::from(unsafe { *grid.get_unchecked(row, col) });
     let mut points = vec![(row, col)];
 
-    grid.iter_row(row)
-        .enumerate()
+    grid.enum_row(row)
         .skip(col + 1)
         .take_while(|(_, ch)| ch.is_ascii_digit())
         .for_each(|(col, &ch)| {
@@ -129,8 +122,7 @@ fn build_number_at_point(grid: &Grid<char>, row: usize, col: usize) -> (u32, Vec
             points.push((row, col));
         });
 
-    grid.iter_row(row)
-        .enumerate()
+    grid.enum_row(row)
         .rev()
         .skip(grid.cols() - col)
         .take_while(|(_, ch)| ch.is_ascii_digit())

@@ -1,5 +1,5 @@
 use advent_of_code::year2023::day11::*;
-use grid::grid;
+use advent_of_code::util::grid::Grid;
 use itertools::Itertools;
 
 const PUZZLE_INPUT: &str = include_str!("../../input/year2023/day11.txt");
@@ -19,7 +19,7 @@ const EXAMPLE_INPUT: &str = "\
 fn parse_example() {
     let parsed = parse(EXAMPLE_INPUT).expect("Error parsing input");
 
-    let mut grid = grid![];
+    let mut grid = Grid::new(0, 0);
     grid.push_row("..*.#.*...*..".chars().collect_vec());
     grid.push_row("..*...*..#*..".chars().collect_vec());
     grid.push_row("#.*...*...*..".chars().collect_vec());
