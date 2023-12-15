@@ -152,6 +152,8 @@ fn year2023() -> Vec<Puzzle> {
         puzzle!(year2023, day11),
         puzzle!(year2023, day12),
         puzzle!(year2023, day13),
+        puzzle!(year2023, day14),
+        puzzle!(year2023, day15),
         // NEXT
     ]
 }
