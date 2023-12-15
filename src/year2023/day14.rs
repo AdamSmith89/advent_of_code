@@ -1,8 +1,6 @@
 use std::{
-    borrow::BorrowMut,
-    collections::{hash_map::DefaultHasher, HashMap},
+    collections::HashMap,
     fmt::{Debug, Write},
-    io::empty,
 };
 
 use grid::{Grid, Order};
@@ -48,81 +46,39 @@ pub fn part1(platform: &ParsedInput) -> color_eyre::Result<usize> {
 
 pub fn part2(platform: &ParsedInput) -> color_eyre::Result<usize> {
     let max_cycles = 1000000000;
-    let mut platform = platform.clone();
     let mut cycles = 0;
-
+    
     let mut cache = HashMap::new();
     cache.insert(platform.clone(), cycles);
-    println!("{platform:?}");
+    
+    let mut platform = platform.clone();
     while cycles < max_cycles {
-        platform = platform.clone();
-
-        // O....#....
-        // O.OO#....#
-        // .....##...
-        // OO.#O....O
-        // .O.....O#.
-        // O.#..O.#.#
-        // ..O..#O..O
-        // .......O..
-        // #....###..
-        // #OO..#....
-
         for _ in 0..4 {
             for col in 0..platform.grid.cols() {
-                let mut empty_row = platform
-                    .grid
-                    .iter_col(col)
-                    .position(|ch| *ch == '.')
-                    .unwrap();
-                let mut row = empty_row + 1;
+                let mut next_empty = platform.next_empty_row(col, 0);
 
-                while row < platform.grid.rows() {
-                    // let entry = platform
-                    //     .grid
-                    //     .get(row, col)
-                    //     .ok_or(AdventError::NotFound(format!("{:?}", (row, col)).into()))?;
-
-                    // if *entry == '#' {
-                    //     empty_row = platform.grid.iter_col(col).skip(empty_row + 1).position(|ch| *ch == '.').unwrap();
-                    //     row = empty_row + 1;
-                    // }
-                    // if *entry == 'O' {
-                    //     platform.swap((row, col), (empty_row, col))?;
-                    //     empty_row += 1;
-                    // }
-
-                    // row += 1;
-
-                    let entry = platform
+                while let Some(empty_idx) = next_empty {
+                    if let Some((idx, next)) = platform
                         .grid
-                        .get(row, col)
-                        .ok_or(AdventError::NotFound(format!("{:?}", (row, col)).into()))?;
-                    let prev_entry =
-                        platform
-                            .grid
-                            .get(row - 1, col)
-                            .ok_or(AdventError::NotFound(
-                                format!("{:?}", (row - 1, col)).into(),
-                            ))?;
-
-                    if *entry == 'O' && *prev_entry == '.' {
-                        platform.swap((row, col), (row - 1, col))?;
-                        if row > 1 {
-                            row -= 1;
+                        .iter_col_mut(col)
+                        .enumerate()
+                        .skip(empty_idx)
+                        .find(|(_, &mut ch)| ch != '.')
+                    {
+                        if *next == '#' {
+                            next_empty = platform.next_empty_row(col, idx);
+                        } else if *next == 'O' {
+                            platform.swap((idx, col), (empty_idx, col))?;
+                            next_empty = platform.next_empty_row(col, empty_idx);
                         }
                     } else {
-                        row += 1;
+                        next_empty = None;
                     }
                 }
             }
 
-            //println!("{platform:?}");
-
             platform.grid.rotate_right();
         }
-
-        //println!("{platform:?}");
 
         cycles += 1;
 
@@ -134,7 +90,7 @@ pub fn part2(platform: &ParsedInput) -> color_eyre::Result<usize> {
             let (final_p, _) = cache
                 .iter()
                 .find(|&(_, value)| *value == final_idx)
-                .unwrap();
+                .ok_or(AdventError::NotFound(format!("{final_idx}")))?;
             platform = final_p.clone();
             break;
         }
@@ -185,6 +141,19 @@ impl Platform {
         self.grid[x] = self.grid[y];
         self.grid[y] = t;
         Ok(())
+    }
+
+    fn next_empty_row(&self, col: usize, offset: usize) -> Option<usize> {
+        if let Some(idx) = self
+            .grid
+            .iter_col(col)
+            .skip(offset)
+            .position(|ch| *ch == '.')
+        {
+            Some(idx + offset)
+        } else {
+            None
+        }
     }
 }
 
