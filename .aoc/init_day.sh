@@ -8,7 +8,7 @@ DAY=${YEAR_DAY[1]}
 echo "=====Project Files====="
 echo -n "Setting up puzzle files..."
 mkdir ./src/$YEAR 2>/dev/null
-cp ./util/template.rs ./src/$YEAR/$DAY.rs
+cp ./.aoc/template.rs ./src/$YEAR/$DAY.rs
 
 sed -i "/\/\/ NEXT/i puzzle!($YEAR, $DAY)," ./src/main.rs
 rustfmt ./src/main.rs
@@ -19,7 +19,7 @@ echo ✔️
 
 echo -n "Setting up test files..."
 mkdir ./tests/$YEAR 2>/dev/null
-cp ./util/test_template.rs ./tests/$YEAR/${DAY}_test.rs
+cp ./.aoc/test_template.rs ./tests/$YEAR/${DAY}_test.rs
 sed -i "s/YYYY/$YEAR/g" ./tests/$YEAR/${DAY}_test.rs
 sed -i "s/DD/$DAY/g" ./tests/$YEAR/${DAY}_test.rs
 
