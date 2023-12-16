@@ -5,7 +5,7 @@ use crate::util::grid::Grid;
 type ParsedInput = Grid<char>;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
-    Ok(input.into())
+    Ok(input.try_into()?)
 }
 
 pub fn part1(grid: &ParsedInput) -> color_eyre::Result<u32> {

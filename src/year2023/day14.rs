@@ -9,7 +9,7 @@ use crate::util::grid::Grid;
 type ParsedInput = Grid<char>;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
-    Ok(Grid::from_str_with_order(input, Order::ColumnMajor))
+    Ok(Grid::from_str_with_order(input, Order::ColumnMajor)?)
 }
 
 pub fn part1(grid: &ParsedInput) -> color_eyre::Result<usize> {
@@ -122,9 +122,5 @@ fn get_groups_with_rocks<'a>(iter: impl Iterator<Item = &'a char>) -> Vec<Vec<(u
 }
 
 fn next_empty_row(grid: &Grid<char>, col: usize, offset: usize) -> Option<usize> {
-    if let Some(idx) = grid.iter_col(col).skip(offset).position(|ch| *ch == '.') {
-        Some(idx + offset)
-    } else {
-        None
-    }
+    grid.iter_col(col).skip(offset).position(|ch| *ch == '.').map(|idx| idx + offset)
 }

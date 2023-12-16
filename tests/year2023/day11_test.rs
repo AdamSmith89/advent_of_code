@@ -1,5 +1,5 @@
-use advent_of_code::year2023::day11::*;
 use advent_of_code::util::grid::Grid;
+use advent_of_code::year2023::day11::*;
 use itertools::Itertools;
 
 const PUZZLE_INPUT: &str = include_str!("../../input/year2023/day11.txt");

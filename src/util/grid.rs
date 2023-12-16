@@ -6,6 +6,14 @@ use std::slice::{Iter, IterMut};
 
 use itertools::Itertools;
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Direction {
+    North,
+    East,
+    South,
+    West,
+}
+
 // Wrapper around grid::Grid that provides extended functionality
 #[derive(Clone, Eq, PartialEq)]
 pub struct Grid<T: std::cmp::Eq> {
@@ -13,19 +21,22 @@ pub struct Grid<T: std::cmp::Eq> {
 }
 
 // Extension methods
-impl<T: Copy + Default + From<char> + std::cmp::Eq> Grid<T> {
+impl<T> Grid<T>
+where
+    T: Copy + Default + std::cmp::Eq + TryFrom<char>,
+{
     pub fn enum_row(&self, row: usize) -> Enumerate<StepBy<Iter<'_, T>>> {
         self.inner.iter_row(row).enumerate()
     }
 
-    pub fn from_str_with_order(s: &str, order: grid::Order) -> Self {
+    pub fn from_str_with_order(s: &str, order: grid::Order) -> Result<Self, T::Error> {
         let mut inner = grid::Grid::new_with_order(0, 0, order);
 
         for line in s.lines() {
-            inner.push_row(line.chars().map_into().collect());
+            inner.push_row(line.chars().map(|ch| ch.try_into()).try_collect()?);
         }
 
-        Self { inner }
+        Ok(Self { inner })
     }
 
     pub fn swap(&mut self, x: (usize, usize), y: (usize, usize)) -> color_eyre::Result<()> {
@@ -33,6 +44,43 @@ impl<T: Copy + Default + From<char> + std::cmp::Eq> Grid<T> {
         self.inner[x] = self.inner[y];
         self.inner[y] = temp;
         Ok(())
+    }
+
+    pub fn get_in_direction(
+        &self,
+        point: (usize, usize),
+        direction: Direction,
+    ) -> Option<(usize, usize)> {
+        match direction {
+            Direction::North => self.north_of(point),
+            Direction::East => self.east_of(point),
+            Direction::South => self.south_of(point),
+            Direction::West => self.west_of(point),
+        }
+    }
+
+    pub fn north_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
+        point.0.checked_sub(1).map(|new_row| (new_row, point.1))
+    }
+
+    pub fn east_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
+        if point.1 < (self.inner.cols() - 1) {
+            Some((point.0, point.1 + 1))
+        } else {
+            None
+        }
+    }
+
+    pub fn south_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
+        if point.0 < (self.inner.rows() - 1) {
+            Some((point.0 + 1, point.1))
+        } else {
+            None
+        }
+    }
+
+    pub fn west_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
+        point.1.checked_sub(1).map(|new_col| (point.0, new_col))
     }
 }
 
@@ -266,15 +314,32 @@ impl<T: Display + std::cmp::Eq> Debug for Grid<T> {
     }
 }
 
-impl<T: Default + From<char> + std::cmp::Eq> From<&str> for Grid<T> {
-    fn from(s: &str) -> Self {
+// impl<T: Default + From<char> + std::cmp::Eq> From<&str> for Grid<T> {
+//     fn from(s: &str) -> Self {
+//         let mut inner = grid::Grid::new(0, 0);
+
+//         for line in s.lines() {
+//             inner.push_row(line.chars().map_into().collect());
+//         }
+
+//         Self { inner }
+//     }
+// }
+
+impl<T: Default + TryFrom<char> + std::cmp::Eq> TryFrom<&str> for Grid<T> {
+    type Error = T::Error;
+
+    fn try_from(s: &str) -> Result<Self, Self::Error>
+    where
+        T:,
+    {
         let mut inner = grid::Grid::new(0, 0);
 
         for line in s.lines() {
-            inner.push_row(line.chars().map_into().collect());
+            inner.push_row(line.chars().map(|ch| ch.try_into()).try_collect()?);
         }
 
-        Self { inner }
+        Ok(Self { inner })
     }
 }
 

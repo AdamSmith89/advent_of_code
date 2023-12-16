@@ -8,10 +8,7 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     let input = input.replace("\r\n", "\n");
 
     let grids = input.split("\n\n").collect_vec();
-    Ok(grids
-        .into_iter()
-        .map_into()
-        .collect_vec())
+    Ok(grids.into_iter().map(|s| s.try_into()).try_collect()?)
 }
 
 pub fn part1(grids: &ParsedInput) -> color_eyre::Result<usize> {
