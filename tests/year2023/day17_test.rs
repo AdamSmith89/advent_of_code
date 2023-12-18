@@ -73,7 +73,7 @@ fn part2_example2() {
 999999999991
 999999999991
 999999999991";
-    
+
     let input = parse(input).expect("Error parsing example input");
     let answer = part2(&input).expect("Error solving part 2");
 
