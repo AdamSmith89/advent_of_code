@@ -97,11 +97,7 @@ fn fire_beam(beam: Beam, grid: &ParsedInput) -> color_eyre::Result<usize> {
         }
     }
 
-    let energized = nodes.iter().filter(|&(_, node)| node.energized).count();
-
-    //println!("{energized}");
-
-    Ok(energized)
+    Ok(nodes.iter().filter(|&(_, node)| node.energized).count())
 }
 
 fn reflect(mirror: char, incoming: Direction) -> color_eyre::Result<Direction> {

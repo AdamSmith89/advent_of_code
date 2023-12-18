@@ -5,13 +5,25 @@ use std::ops::{Index, IndexMut};
 use std::slice::{Iter, IterMut};
 
 use itertools::Itertools;
+use strum_macros::{Display, EnumIter};
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, EnumIter, Eq, Hash, PartialEq)]
 pub enum Direction {
     North,
     East,
     South,
     West,
+}
+
+impl Direction {
+    pub fn is_opposite(&self, other: &Direction) -> bool {
+        match self {
+            Direction::North => *other == Direction::South,
+            Direction::East => *other == Direction::West,
+            Direction::South => *other == Direction::North,
+            Direction::West => *other == Direction::East,
+        }
+    }
 }
 
 // Wrapper around grid::Grid that provides extended functionality
@@ -329,19 +341,33 @@ impl<T: Display + std::cmp::Eq> Debug for Grid<T> {
 impl<T: Default + TryFrom<char> + std::cmp::Eq> TryFrom<&str> for Grid<T> {
     type Error = T::Error;
 
-    fn try_from(s: &str) -> Result<Self, Self::Error>
+    fn try_from(value: &str) -> Result<Self, Self::Error>
     where
         T:,
     {
         let mut inner = grid::Grid::new(0, 0);
 
-        for line in s.lines() {
+        for line in value.lines() {
             inner.push_row(line.chars().map(|ch| ch.try_into()).try_collect()?);
         }
 
         Ok(Self { inner })
     }
 }
+
+// impl TryFrom<&str> for Grid<u32> {
+//     type Error = std::num::ParseIntError;
+
+//     fn try_from(value: &str) -> Result<Self, Self::Error> {
+//         let mut inner = grid::Grid::new(0, 0);
+
+//         for line in value.lines() {
+//             inner.push_row(line.chars().map(|ch| ch.parse::<u32>()).try_collect()?);
+//         }
+
+//         Ok(Self { inner })
+//     }
+// }
 
 impl<T: std::cmp::Eq> From<grid::Grid<T>> for Grid<T> {
     fn from(value: grid::Grid<T>) -> Self {

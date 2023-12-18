@@ -122,5 +122,8 @@ fn get_groups_with_rocks<'a>(iter: impl Iterator<Item = &'a char>) -> Vec<Vec<(u
 }
 
 fn next_empty_row(grid: &Grid<char>, col: usize, offset: usize) -> Option<usize> {
-    grid.iter_col(col).skip(offset).position(|ch| *ch == '.').map(|idx| idx + offset)
+    grid.iter_col(col)
+        .skip(offset)
+        .position(|ch| *ch == '.')
+        .map(|idx| idx + offset)
 }
