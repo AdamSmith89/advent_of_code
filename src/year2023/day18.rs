@@ -24,9 +24,7 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
                 size: splits[1].parse()?,
             };
 
-            let colour = splits[2]
-                    .trim_start_matches("(#")
-                    .trim_end_matches(")");
+            let colour = splits[2].trim_start_matches("(#").trim_end_matches(")");
 
             let (size, dir) = colour.split_at(5);
             let dir = match dir {
@@ -38,10 +36,7 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
             };
             let size = i64::from_str_radix(size, 16)?;
 
-            let part2 = DigStep {
-                dir,
-                size,
-            };
+            let part2 = DigStep { dir, size };
 
             Ok((part1, part2))
         })
@@ -49,9 +44,7 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
 
     let (part1, part2) = parts.into_iter().unzip();
 
-    Ok(Input {
-        part1, part2
-    })
+    Ok(Input { part1, part2 })
 }
 
 pub fn part1(input: &ParsedInput) -> color_eyre::Result<i64> {
