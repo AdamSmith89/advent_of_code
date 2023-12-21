@@ -31,8 +31,18 @@ fn parse_example() {
         workflows.get("px"),
         Some(&Workflow {
             rules: vec![
-                Rule { kind: RuleKind::LessThan, field: Field::A, value: 2006, target: "qkq".to_string() },
-                Rule { kind: RuleKind::GreaterThan, field: Field::M, value: 2090, target: "A".to_string() },
+                Rule {
+                    kind: RuleKind::LessThan,
+                    field: Field::A,
+                    value: 2006,
+                    target: "qkq".to_string()
+                },
+                Rule {
+                    kind: RuleKind::GreaterThan,
+                    field: Field::M,
+                    value: 2090,
+                    target: "A".to_string()
+                },
             ],
             fallthrough: "rfg".to_string(),
         })
@@ -42,9 +52,12 @@ fn parse_example() {
     assert_eq!(
         workflows.get("crn"),
         Some(&Workflow {
-            rules: vec![
-                Rule { kind: RuleKind::GreaterThan, field: Field::X, value: 2662, target: "A".to_string() },
-            ],
+            rules: vec![Rule {
+                kind: RuleKind::GreaterThan,
+                field: Field::X,
+                value: 2662,
+                target: "A".to_string()
+            },],
             fallthrough: "R".to_string(),
         })
     );

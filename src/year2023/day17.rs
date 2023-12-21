@@ -32,7 +32,7 @@ pub fn part1(map: &ParsedInput) -> color_eyre::Result<usize> {
 
     let start = Node::new(0, 0);
     let end = Node::new(map.cols() - 1, map.rows() - 1);
-    let success = |node: &Node| -> bool { *node == end };
+    let success = |node: &Node| -> bool { node.is_same_loc(&end) };
 
     let path = dijkstra(&start, successors, success).expect("Failed to find path");
     // print_path(map, path.0);
@@ -65,7 +65,7 @@ pub fn part2(map: &ParsedInput) -> color_eyre::Result<usize> {
 
     let start = Node::new(0, 0);
     let end = Node::new(map.cols() - 1, map.rows() - 1);
-    let success = |node: &Node| -> bool { *node == end && node.dir_count >= 4 };
+    let success = |node: &Node| -> bool { node.is_same_loc(&end) && node.dir_count >= 4 };
 
     let path = dijkstra(&start, successors, success).expect("Failed to find path");
     // print_path(map, path.0);
@@ -123,7 +123,7 @@ fn get_cardinal_successors(
         .collect_vec()
 }
 
-fn print_path(map: &ParsedInput, path: Vec<Node>) {
+fn _print_path(map: &ParsedInput, path: Vec<Node>) {
     for row in 0..map.rows() {
         for col in 0..map.cols() {
             if let Some(node) = path
@@ -149,7 +149,7 @@ fn print_path(map: &ParsedInput, path: Vec<Node>) {
     }
 }
 
-#[derive(Clone, Debug, Eq, Hash)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 struct Node {
     loc: Point,
     in_dir: Option<Direction>,
@@ -164,10 +164,8 @@ impl Node {
             dir_count: 0,
         }
     }
-}
 
-impl PartialEq for Node {
-    fn eq(&self, other: &Self) -> bool {
+    fn is_same_loc(&self, other: &Node) -> bool {
         self.loc == other.loc
     }
 }

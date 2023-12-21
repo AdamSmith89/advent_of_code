@@ -149,10 +149,16 @@ impl<T: Clone + Default + std::cmp::Eq> Grid<T> {
         self.inner.get_mut(row, col)
     }
 
+    /// # Safety
+    ///
+    /// Calling this method with an out-of-bounds index is undefined behavior even if the resulting reference is not used.
     pub unsafe fn get_unchecked(&self, row: usize, col: usize) -> &T {
         self.inner.get_unchecked(row, col)
     }
 
+    /// # Safety
+    ///
+    /// Calling this method with an out-of-bounds index is undefined behavior even if the resulting reference is not used.
     pub unsafe fn get_unchecked_mut(&mut self, row: usize, col: usize) -> &mut T {
         self.inner.get_unchecked_mut(row, col)
     }

@@ -16,8 +16,6 @@ const EXAMPLE_INPUT: &str = r".|...\....
 fn parse_example() {
     let parsed = parse(EXAMPLE_INPUT).expect("Error parsing input");
 
-    use NodeType::*;
-
     assert_eq!(parsed[(0, 0)], '.');
     assert_eq!(parsed[(1, 2)], '-');
     assert_eq!(parsed[(5, 9)], '\\');

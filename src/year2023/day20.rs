@@ -80,7 +80,7 @@ pub fn part2(modules: &ParsedInput) -> color_eyre::Result<usize> {
                ^    ^    ^    ^
                |    |    |    |
                %*   %*   %*   %*
-    
+
         where %* is a series of flip-flops
     */
     // Remember that...
@@ -182,10 +182,7 @@ fn to_module(value: &str) -> color_eyre::Result<(String, Module)> {
     let targets: Vec<String> = targets.split(", ").map_into().collect();
 
     if let Some(id) = type_id.strip_prefix('%') {
-        Ok((
-            id.to_string(),
-            Module::FlipFlop(FlipFlop::new(targets)),
-        ))
+        Ok((id.to_string(), Module::FlipFlop(FlipFlop::new(targets))))
     } else if let Some(id) = type_id.strip_prefix('&') {
         Ok((
             id.to_string(),

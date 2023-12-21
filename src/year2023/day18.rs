@@ -24,7 +24,7 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
                 size: splits[1].parse()?,
             };
 
-            let colour = splits[2].trim_start_matches("(#").trim_end_matches(")");
+            let colour = splits[2].trim_start_matches("(#").trim_end_matches(')');
 
             let (size, dir) = colour.split_at(5);
             let dir = match dir {
@@ -79,7 +79,7 @@ fn solve(steps: &Vec<DigStep>) -> i64 {
 // Area = 0.5 * |(x1*y2 - x2*y1) + (x2*y3 - x3*y2) + ... + (xn*y1 - x1*yn)|
 // Determinant = (xn*y1 - x1*yn)
 fn calc_determinant(start: &Point, end: &Point) -> i64 {
-    (start.0 * end.1) as i64 - (start.1 * end.0) as i64
+    (start.0 * end.1) - (start.1 * end.0)
 }
 
 fn calc_end(start: &Point, size: i64, dir: Direction) -> Point {

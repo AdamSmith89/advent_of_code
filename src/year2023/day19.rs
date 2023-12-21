@@ -125,7 +125,7 @@ pub fn part2(input: &ParsedInput) -> color_eyre::Result<u64> {
 
         match rule.kind {
             RuleKind::LessThan => {
-                let r = field_range.start.clone()..rule.value;
+                let r = field_range.start..rule.value;
                 let mut lt_combination = combination.clone();
                 lt_combination.workflow_id = rule.target.clone();
                 match rule.field {
@@ -151,7 +151,7 @@ pub fn part2(input: &ParsedInput) -> color_eyre::Result<u64> {
                 combinations.push(gt_combination);
             }
             RuleKind::GreaterThan => {
-                let r = field_range.start.clone()..rule.value + 1;
+                let r = field_range.start..rule.value + 1;
                 let mut lt_combination = combination.clone();
                 match rule.field {
                     Field::X => lt_combination.parts.x = r,
@@ -326,7 +326,7 @@ impl TryFrom<&str> for Part {
                 "m" => part.m = value,
                 "a" => part.a = value,
                 "s" => part.s = value,
-                s @ _ => return Err(AdventError::UnknownPattern(s.into())),
+                s => return Err(AdventError::UnknownPattern(s.into())),
             }
         }
 
