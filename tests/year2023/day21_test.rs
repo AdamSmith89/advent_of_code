@@ -24,10 +24,10 @@ fn parse_example() {
 #[test]
 fn part1_example() {
     let mut input = parse(EXAMPLE_INPUT).expect("Error parsing input");
-    
+
     // We only have example output for 6 steps
     input.steps_override = Some(6);
-    
+
     let answer = part1(&input).expect("Error solving part 1");
 
     assert_eq!(answer, 16);

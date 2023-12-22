@@ -2,6 +2,7 @@ use std::{iter::empty, time::Instant};
 
 use advent_of_code::*;
 use clap::Parser;
+use colored::{ColoredString, Colorize};
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -17,24 +18,46 @@ fn main() -> color_eyre::eyre::Result<()> {
     let puzzles = get_puzzles(year, day);
     let mut total_time = 0f32;
 
+    println!(
+        "{:^10}┃{:^7}┃{:^20}┃{:^15}┃{:^20}┃{:^15}┃{:^20}┃{:^15}",
+        "Year".bold(),
+        "Day".bold(),
+        "Part 1".bold(),
+        "Time(s)".bold(),
+        "Part 2".bold(),
+        "Time(s)".bold(),
+        "Parsed Time(s)".bold(),
+        "Total Time(s)".bold()
+    );
+    println!(
+        "{:━^10}╋{:━^7}╋{:━^20}╋{:━^15}╋{:━^20}╋{:━^15}╋{:━^20}╋{:━^15}",
+        "━", "━", "━", "━", "━", "━", "━", "━"
+    );
+
     for puzzle in &puzzles {
         let result = (puzzle.solve)(puzzle.input)?;
         total_time += result.total_time();
 
+        let part1_time = colorize_time(result.part1.time_s);
+        let part2_time = colorize_time(result.part2.time_s);
+        let parse_time = colorize_time(result.parse_time_s);
+        let total_time = colorize_time(result.total_time());
+
         println!(
-            "{}::{} - Part1 = {} in {}s, Part2 = {} in {}s, Parsed in {}s, Total in {}s",
+            "{:<10}┃ {:<6}┃ {:<19}┃ {:<14}┃ {:<19}┃ {:<14}┃ {:<19}┃ {:<14}",
             puzzle.year,
             puzzle.day,
             result.part1.answer,
-            result.part1.time_s,
+            part1_time,
             result.part2.answer,
-            result.part2.time_s,
-            result.parse_time_s,
-            result.total_time(),
+            part2_time,
+            parse_time,
+            total_time,
         );
     }
 
     if puzzles.len() > 1 {
+        println!();
         println!("Puzzles solved = {} in {total_time}s", puzzles.len());
     }
 
@@ -61,6 +84,16 @@ fn get_puzzles(year: Option<String>, day: Option<String>) -> Vec<Puzzle> {
         .filter(|puzzle| year.as_ref().map_or(true, |year| *year == puzzle.year))
         .filter(|puzzle| day.as_ref().map_or(true, |day| *day == puzzle.day))
         .collect::<Vec<_>>()
+}
+
+fn colorize_time(time: f32) -> ColoredString {
+    if time < 0.5 {
+        format!("{}", time).green()
+    } else if time < 1.0 {
+        format!("{}", time).blue()
+    } else {
+        format!("{}", time).red()
+    }
 }
 
 struct Puzzle {
@@ -160,6 +193,7 @@ fn year2023() -> Vec<Puzzle> {
         puzzle!(year2023, day19),
         puzzle!(year2023, day20),
         //puzzle!(year2023, day21),
+        puzzle!(year2023, day22),
         // NEXT
     ]
 }
