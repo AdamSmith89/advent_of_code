@@ -46,7 +46,7 @@ pub fn part2(map: &ParsedInput) -> color_eyre::Result<usize> {
 
         if node.dir_count < 4 {
             if let Some(from) = node.in_dir {
-                if let Some(next_point) = map.get_in_direction(grid_loc, from) {
+                if let Some((next_point, _)) = map.get_in_direction_indexed(grid_loc, from) {
                     let mut next_node = Node::from((next_point.1, next_point.0));
                     next_node.in_dir = Some(from);
                     next_node.dir_count = node.dir_count + 1;
@@ -82,7 +82,7 @@ fn get_cardinal_successors(
 
     Direction::iter()
         .filter_map(|direction| {
-            if let Some(next_point) = map.get_in_direction(grid_loc, direction) {
+            if let Some((next_point, _)) = map.get_in_direction_indexed(grid_loc, direction) {
                 if let Some(from) = node.in_dir {
                     // Are we reversing direction?
                     if from.is_opposite(&direction) {

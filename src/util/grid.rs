@@ -58,17 +58,42 @@ where
         Ok(())
     }
 
-    pub fn get_in_direction(
+    pub fn get_in_direction(&self,
+        point: (usize, usize),
+        direction: Direction,
+    ) -> Option<&T> {
+        if let Some((_, out)) = self.get_in_direction_indexed(point, direction) {
+            Some(out)
+        }
+        else {
+            None
+        }
+    }
+
+    pub fn get_in_direction_indexed(
         &self,
         point: (usize, usize),
         direction: Direction,
-    ) -> Option<(usize, usize)> {
-        match direction {
+    ) -> Option<((usize, usize), &T)> {
+        let point = match direction {
             Direction::North => self.north_of(point),
             Direction::East => self.east_of(point),
             Direction::South => self.south_of(point),
             Direction::West => self.west_of(point),
+        };
+
+        if let Some(point) = point {
+            Some((point, self.get(point.0, point.1).unwrap()))
         }
+        else {
+            None
+        }
+    }
+
+    //pub fn is_direction_in_bounds
+
+    pub fn is_in_bounds(&self, point: (usize, usize)) -> bool {
+        self.inner.get(point.0, point.1).is_some()
     }
 
     pub fn north_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {

@@ -67,9 +67,6 @@ pub fn part1(bricks: &ParsedInput) -> color_eyre::Result<usize> {
 }
 
 pub fn part2(bricks: &ParsedInput) -> color_eyre::Result<usize> {
-    // 76284 - too high
-    // 1390 - too low
-
     let critical_bricks: HashSet<u32> = bricks
         .iter()
         .filter_map(|brick| {

@@ -91,7 +91,7 @@ fn fire_beam(beam: Beam, grid: &ParsedInput) -> color_eyre::Result<usize> {
             NodeType::Splitter(splitter) => split(splitter, &mut beam, &mut beams),
         }
 
-        if let Some(next_point) = grid.get_in_direction(beam.point, beam.direction) {
+        if let Some((next_point, _)) = grid.get_in_direction_indexed(beam.point, beam.direction) {
             beam.point = next_point;
             beams.push(beam);
         }

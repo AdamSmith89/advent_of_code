@@ -19,18 +19,18 @@ fn main() -> color_eyre::eyre::Result<()> {
     let mut total_time = 0f32;
 
     println!(
-        "{:^10}┃{:^7}┃{:^20}┃{:^15}┃{:^20}┃{:^15}┃{:^20}┃{:^15}",
+        "{:^10}┃{:^7}┃{:^20}┃{:^20}┃{:^18}┃{:^18}┃{:^18}┃{:^15}",
         "Year".bold(),
         "Day".bold(),
         "Part 1".bold(),
-        "Time(s)".bold(),
         "Part 2".bold(),
-        "Time(s)".bold(),
-        "Parsed Time(s)".bold(),
+        "Parse Time(s)".bold(),
+        "Part 1 Time(s)".bold(),
+        "Part 2 Time(s)".bold(),
         "Total Time(s)".bold()
     );
     println!(
-        "{:━^10}╋{:━^7}╋{:━^20}╋{:━^15}╋{:━^20}╋{:━^15}╋{:━^20}╋{:━^15}",
+        "{:━^10}╋{:━^7}╋{:━^20}╋{:━^20}╋{:━^18}╋{:━^18}╋{:━^18}╋{:━^15}",
         "━", "━", "━", "━", "━", "━", "━", "━"
     );
 
@@ -44,14 +44,14 @@ fn main() -> color_eyre::eyre::Result<()> {
         let total_time = colorize_time(result.total_time());
 
         println!(
-            "{:<10}┃ {:<6}┃ {:<19}┃ {:<14}┃ {:<19}┃ {:<14}┃ {:<19}┃ {:<14}",
+            "{:<10}┃ {:<6}┃ {:<19}┃ {:<19}┃ {:<17}┃ {:<17}┃ {:<17}┃ {:<14}",
             puzzle.year,
             puzzle.day,
             result.part1.answer,
-            part1_time,
             result.part2.answer,
-            part2_time,
             parse_time,
+            part1_time,
+            part2_time,
             total_time,
         );
     }
@@ -181,7 +181,7 @@ fn year2023() -> Vec<Puzzle> {
         puzzle!(year2023, day07),
         puzzle!(year2023, day08),
         puzzle!(year2023, day09),
-        //puzzle!(year2023, day10),
+        puzzle!(year2023, day10),
         puzzle!(year2023, day11),
         puzzle!(year2023, day12),
         puzzle!(year2023, day13),
