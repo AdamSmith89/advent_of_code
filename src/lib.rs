@@ -2,6 +2,7 @@ pub mod error;
 
 pub mod util {
     pub mod grid;
+    pub mod point;
 }
 
 pub mod year2023 {
@@ -27,5 +28,6 @@ pub mod year2023 {
     pub mod day20;
     pub mod day21;
     pub mod day22;
+    pub mod day23;
     // NEXT
 }

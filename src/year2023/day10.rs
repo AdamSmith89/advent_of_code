@@ -22,8 +22,7 @@ pub fn part1(grid: &ParsedInput) -> color_eyre::Result<usize> {
     let path = get_path(grid)?;
     if !path.is_empty() {
         Ok(path.len() / 2)
-    }
-    else {
+    } else {
         Err(AdventError::NotFound("Path not found".to_string()).into())
     }
 }

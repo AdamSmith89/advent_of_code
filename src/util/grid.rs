@@ -58,14 +58,10 @@ where
         Ok(())
     }
 
-    pub fn get_in_direction(&self,
-        point: (usize, usize),
-        direction: Direction,
-    ) -> Option<&T> {
+    pub fn get_in_direction(&self, point: (usize, usize), direction: Direction) -> Option<&T> {
         if let Some((_, out)) = self.get_in_direction_indexed(point, direction) {
             Some(out)
-        }
-        else {
+        } else {
             None
         }
     }
@@ -84,8 +80,7 @@ where
 
         if let Some(point) = point {
             Some((point, self.get(point.0, point.1).unwrap()))
-        }
-        else {
+        } else {
             None
         }
     }

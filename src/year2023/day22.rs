@@ -98,7 +98,11 @@ pub fn part2(bricks: &ParsedInput) -> color_eyre::Result<usize> {
                     .find(|brick| brick.id == *above_id)
                     .ok_or(AdventError::NotFound(format!("{}", brick_id)))?;
 
-                if above_brick.below.iter().all(|below_id| removed_bricks.contains(below_id)) {
+                if above_brick
+                    .below
+                    .iter()
+                    .all(|below_id| removed_bricks.contains(below_id))
+                {
                     todo.push(*above_id);
                     removed_bricks.insert(*above_id);
                 }

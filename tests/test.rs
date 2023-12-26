@@ -21,5 +21,6 @@ mod year2023 {
     mod day20_test;
     mod day21_test;
     mod day22_test;
+    mod day23_test;
     // NEXT
 }
