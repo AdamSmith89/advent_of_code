@@ -1,5 +1,11 @@
+use std::{
+    collections::{HashMap, HashSet},
+    iter::Successors,
+};
+
 use grid::grid;
 use itertools::Itertools;
+use pathfinding::directed::dijkstra::dijkstra;
 use strum::IntoEnumIterator;
 
 use crate::{
@@ -35,7 +41,13 @@ pub fn part1(grid: &ParsedInput) -> color_eyre::Result<usize> {
         .map_or(None, |(col, _)| Some((last_row, col)))
         .ok_or(AdventError::NotFound("Path".to_string()))?;
 
-    if let Some(paths) = find_paths(grid, Point::from(start), Direction::South, Point::from(end), true) {
+    if let Some(paths) = find_paths(
+        grid,
+        Point::from(start),
+        Direction::South,
+        Point::from(end),
+        true,
+    ) {
         // if paths.is_empty() {
         //     println!("Failed to find any path to the end");
         // }
@@ -60,6 +72,107 @@ pub fn part1(grid: &ParsedInput) -> color_eyre::Result<usize> {
 pub fn part2(grid: &ParsedInput) -> color_eyre::Result<usize> {
     // Running part 1 code doesn't work, it blows the stack.
     // Need to first create a graph of junction nodes so can search that instead
+
+    let start: Point = grid
+        .iter_row(0)
+        .enumerate()
+        .find(|(_, tile)| Tile::is_path(tile))
+        .map_or(None, |(col, _)| Some((0usize, col)))
+        .ok_or(AdventError::NotFound("Path".to_string()))?
+        .into();
+
+    let last_row = grid.rows() - 1;
+    let end: Point = grid
+        .iter_row(last_row)
+        .enumerate()
+        .find(|(_, tile)| Tile::is_path(tile))
+        .map_or(None, |(col, _)| Some((last_row, col)))
+        .ok_or(AdventError::NotFound("Path".to_string()))?
+        .into();
+
+    let get_cardinal_neighbours = |p: &Point| -> Vec<(Point, usize)> {
+        Direction::iter()
+            .filter_map(|dir| {
+                if let Some((next_pos, next_tile)) = grid.get_in_direction_indexed((*p).into(), dir)
+                {
+                    if !matches!(next_tile, Tile::Forest) {
+                        Some((next_pos.into(), 1))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .collect_vec()
+    };
+
+    let mut junctions = vec![start];
+
+    junctions.append(
+        &mut grid
+            .indexed_iter()
+            .filter(|(_, tile)| Tile::is_path(tile))
+            .filter_map(|((row, col), _)| {
+                let available_moves = get_cardinal_neighbours(&Point::from((row, col))).len();
+
+                if available_moves >= 3 {
+                    Some(Point(row, col))
+                } else {
+                    None
+                }
+            })
+            .collect_vec(),
+    );
+
+    junctions.push(end);
+
+    println!("{junctions:?}");
+
+    let mut links = HashMap::new();
+
+    for (start, end) in junctions.iter().tuple_combinations() {
+        let success = |p: &Point| -> bool { p == end };
+
+        if links
+            .get(start)
+            .is_some_and(|linked_to: &Vec<(Point, usize)>| {
+                linked_to.iter().find(|(p, _)| p == end).is_some()
+            })
+        {
+            continue;
+        }
+
+        // Don't let us go through another junction to find this one
+        let successors = |p: &Point| -> Vec<(Point, usize)> {
+            get_cardinal_neighbours(p)
+                .iter()
+                .filter(|&next| next.0 == *end || !junctions.contains(&next.0))
+                .cloned()
+                .collect_vec()
+        };
+
+        if let Some((_, steps)) = dijkstra(start, successors, success) {
+            links
+                .entry(start)
+                .and_modify(|v: &mut Vec<(Point, usize)>| {
+                    v.push((*end, steps));
+                })
+                .or_insert(vec![(*end, steps)]);
+
+            links
+                .entry(end)
+                .and_modify(|v: &mut Vec<(Point, usize)>| {
+                    v.push((*start, steps));
+                })
+                .or_insert(vec![(*start, steps)]);
+        }
+    }
+
+    //println!("{links:#?}");
+
+    
+
     Ok(0)
 }
 
