@@ -1,3 +1,8 @@
+mod year2019 {
+    mod day01_test;
+    // NEXT
+}
+
 mod year2023 {
     mod day01_test;
     mod day02_test;
@@ -22,5 +27,4 @@ mod year2023 {
     mod day21_test;
     mod day22_test;
     mod day23_test;
-    // NEXT
 }

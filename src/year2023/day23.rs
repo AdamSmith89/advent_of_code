@@ -171,8 +171,6 @@ pub fn part2(grid: &ParsedInput) -> color_eyre::Result<usize> {
 
     //println!("{links:#?}");
 
-    
-
     Ok(0)
 }
 

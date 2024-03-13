@@ -5,6 +5,11 @@ pub mod util {
     pub mod point;
 }
 
+pub mod year2019 {
+    pub mod day01;
+    // NEXT
+}
+
 pub mod year2023 {
     pub mod day01;
     pub mod day02;
@@ -29,5 +34,4 @@ pub mod year2023 {
     pub mod day21;
     pub mod day22;
     pub mod day23;
-    // NEXT
 }

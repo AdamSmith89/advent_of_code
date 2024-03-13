@@ -80,6 +80,7 @@ fn parse_args() -> (Option<String>, Option<String>) {
 
 fn get_puzzles(year: Option<String>, day: Option<String>) -> Vec<Puzzle> {
     empty()
+        .chain(year2019())
         .chain(year2023())
         .filter(|puzzle| year.as_ref().map_or(true, |year| *year == puzzle.year))
         .filter(|puzzle| day.as_ref().map_or(true, |day| *day == puzzle.day))
@@ -170,6 +171,13 @@ where
     Ok((result, elapsed_s))
 }
 
+fn year2019() -> Vec<Puzzle> {
+    vec![
+        puzzle!(year2019, day01),
+        // NEXT
+    ]
+}
+
 fn year2023() -> Vec<Puzzle> {
     vec![
         puzzle!(year2023, day01),
@@ -194,7 +202,6 @@ fn year2023() -> Vec<Puzzle> {
         puzzle!(year2023, day20),
         //puzzle!(year2023, day21),
         puzzle!(year2023, day22),
-        puzzle!(year2023, day23),
-        // NEXT
+        //puzzle!(year2023, day23),
     ]
 }
