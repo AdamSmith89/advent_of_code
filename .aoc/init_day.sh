@@ -5,7 +5,7 @@ YEAR_DAY=(${1//::/ })
 YEAR=${YEAR_DAY[0]}
 DAY=${YEAR_DAY[1]}
 
-echo "=====Project Files====="
+#=====Project Files=====
 echo -n "Setting up puzzle files..."
 mkdir ./src/$YEAR 2>/dev/null
 cp ./.aoc/template.rs ./src/$YEAR/$DAY.rs
@@ -26,26 +26,33 @@ sed -i "s/DD/$DAY/g" ./tests/$YEAR/${DAY}_test.rs
 sed -i "/\/\/ NEXT/i mod ${DAY}_test;" ./tests/test.rs
 rustfmt ./tests/test.rs
 echo ✔️
-echo
 
-echo "======Input File======"
+#======Input File======
 echo -n "Setting up input file..."
 if [ -e ./input/$YEAR/$DAY.txt ]
 then
     echo ✔️
-else
-    mkdir ./input/$YEAR 2>/dev/null
-    touch ./input/$YEAR/$DAY.txt
-    
+else    
     SESSION=$(<$2)
     
     YEAR_NUM=(${YEAR//year/ })
     DAY_NUM=(${DAY//day/ })
-    DAY_NUM_STRIPPED=${DAY_NUM#0}
-    
+    DAY_NUM_STRIPPED=${DAY_NUM#0}    
+    URL=https://adventofcode.com/$YEAR_NUM/day/$DAY_NUM_STRIPPED/input
+
     echo -n ⬇️
-    curl -o ./input/$YEAR/$DAY.txt https://adventofcode.com/$YEAR_NUM/day/$DAY_NUM_STRIPPED/input --cookie "session=$SESSION" 2>/dev/null
-    echo ✔️
+    response=$(curl -s -w "%{http_code}" $URL --cookie "session=$SESSION")
+    http_code=$(tail -n1 <<< "$response")  # get the last line
+    
+    if [[ $http_code == 200 ]]
+    then
+        content=$(sed '$ d' <<< "$response")   # get all but the last line which contains the status code
+        mkdir ./input/$YEAR 2>/dev/null
+        echo "$content" > ./input/$YEAR/$DAY.txt
+        echo ✔️
+    else
+        echo "❌ ($http_code)"
+    fi
 fi
 
 echo
