@@ -7,31 +7,41 @@ DAY=${YEAR_DAY[1]}
 
 #=====Project Files=====
 echo -n "Setting up puzzle files..."
-mkdir ./src/$YEAR 2>/dev/null
-cp ./.aoc/template.rs ./src/$YEAR/$DAY.rs
+if [ -e ./src/$YEAR/$DAY.rs ]
+then
+    echo ⏩
+else
+    mkdir ./src/$YEAR 2>/dev/null
+    cp ./.aoc/template.rs ./src/$YEAR/$DAY.rs
 
-sed -i "/\/\/ NEXT/i puzzle!($YEAR, $DAY)," ./src/main.rs
-rustfmt ./src/main.rs
+    sed -i "/\/\/ NEXT/i puzzle!($YEAR, $DAY)," ./src/main.rs
+    rustfmt ./src/main.rs
 
-sed -i "/\/\/ NEXT/i pub mod $DAY;" ./src/lib.rs
-rustfmt ./src/lib.rs
-echo ✔️
+    sed -i "/\/\/ NEXT/i pub mod $DAY;" ./src/lib.rs
+    rustfmt ./src/lib.rs
+    echo ✔️
+fi
 
 echo -n "Setting up test files..."
-mkdir ./tests/$YEAR 2>/dev/null
-cp ./.aoc/test_template.rs ./tests/$YEAR/${DAY}_test.rs
-sed -i "s/YYYY/$YEAR/g" ./tests/$YEAR/${DAY}_test.rs
-sed -i "s/DD/$DAY/g" ./tests/$YEAR/${DAY}_test.rs
+if [ -e ./tests/$YEAR/${DAY}_test.rs ]
+then
+    echo ⏩
+else
+    mkdir ./tests/$YEAR 2>/dev/null
+    cp ./.aoc/test_template.rs ./tests/$YEAR/${DAY}_test.rs
+    sed -i "s/YYYY/$YEAR/g" ./tests/$YEAR/${DAY}_test.rs
+    sed -i "s/DD/$DAY/g" ./tests/$YEAR/${DAY}_test.rs
 
-sed -i "/\/\/ NEXT/i mod ${DAY}_test;" ./tests/test.rs
-rustfmt ./tests/test.rs
-echo ✔️
+    sed -i "/\/\/ NEXT/i mod ${DAY}_test;" ./tests/test.rs
+    rustfmt ./tests/test.rs
+    echo ✔️
+fi
 
 #======Input File======
 echo -n "Setting up input file..."
 if [ -e ./input/$YEAR/$DAY.txt ]
 then
-    echo ✔️
+    echo ⏩
 else    
     SESSION=$(<$2)
     
