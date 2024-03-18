@@ -6,7 +6,9 @@ pub mod util {
 }
 
 pub mod year2019 {
+    pub mod int_code_computer;
     pub mod day01;
+    pub mod day02;
     // NEXT
 }
 

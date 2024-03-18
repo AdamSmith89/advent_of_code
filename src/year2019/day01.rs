@@ -15,16 +15,18 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
 // Specifically, to find the fuel required for a module,
 // take its mass, divide by three, round down, and subtract 2.
 pub fn part1(mass_values: &ParsedInput) -> color_eyre::Result<u32> {
-    Ok(mass_values.iter().map(|mass| {
-        f32::floor(*mass as f32 / 3f32) as u32 - 2
-    })
-    .sum())
+    Ok(mass_values
+        .iter()
+        .map(|mass| f32::floor(*mass as f32 / 3f32) as u32 - 2)
+        .sum())
 }
 
 // Fuel itself requires fuel just like a module
 // Any mass that would require negative fuel should instead be treated as if it requires zero fuel
 pub fn part2(mass_values: &ParsedInput) -> color_eyre::Result<u32> {
-    Ok(mass_values.iter().map(|mass| {
+    Ok(mass_values
+        .iter()
+        .map(|mass| {
             let mut total_mod_fuel = 0;
             let mut mod_fuel = f32::floor(*mass as f32 / 3f32) as i32 - 2;
 
