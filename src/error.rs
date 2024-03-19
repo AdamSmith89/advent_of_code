@@ -19,7 +19,7 @@ pub enum AdventError {
     #[error("Unknown pattern: {0}")]
     UnknownPattern(String),
     #[error("Failed to solve puzzle: {0}")]
-    LogicError(String)
+    LogicError(String),
 }
 
 impl From<ParseIntError> for AdventError {

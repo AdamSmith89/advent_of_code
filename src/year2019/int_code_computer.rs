@@ -109,7 +109,7 @@ mod tests {
         assert!(icc.run().is_ok());
         assert_eq!(vec![99], icc.code);
     }
-    
+
     #[test]
     fn icc_basic_add() {
         let mut icc = IntCodeComputer::new(vec![1, 0, 0, 0, 99]);
