@@ -53,7 +53,9 @@ pub fn part2(input: &ParsedInput) -> color_eyre::Result<usize> {
         })
         .sorted()
         .next()
-        .ok_or(AdventError::LogicError(String::from("No intersections found")))?;
+        .ok_or(AdventError::LogicError(String::from(
+            "No intersections found",
+        )))?;
 
     // +2 because the paths don't contain the starting point (to avoid it being treated as an intersection)
     Ok(shortest_path_intersection + 2)
