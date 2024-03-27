@@ -2,14 +2,17 @@ use itertools::Itertools;
 
 use crate::error::AdventError;
 
-type ParsedInput = ([u32;6], [u32;6]);
+type ParsedInput = ([u32; 6], [u32; 6]);
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     let (start, end) = input
         .split_once('-')
         .ok_or(AdventError::SplitOnce(input.to_string(), '-'.to_string()))?;
 
-    Ok((explode_number(&start.parse::<u32>()?), explode_number(&end.parse::<u32>()?)))
+    Ok((
+        explode_number(&start.parse::<u32>()?),
+        explode_number(&end.parse::<u32>()?),
+    ))
 }
 
 // It is a six-digit number.
@@ -28,7 +31,7 @@ pub fn part1((start, end): &ParsedInput) -> color_eyre::Result<u32> {
 
         next_num = next_non_dec_number(&next_num);
     }
-    
+
     Ok(valid_pwds)
 }
 
