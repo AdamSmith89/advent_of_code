@@ -18,7 +18,7 @@ fn parse_example() {
 fn part1_example() {
     let input = parse(EXAMPLE_INPUT).expect("Error parsing input");
     let answer = part1(&input).expect("Error solving part 1");
-    
+
     assert_eq!(answer, 13);
 }
 
