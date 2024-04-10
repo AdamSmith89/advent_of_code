@@ -78,11 +78,7 @@ where
             Direction::West => self.west_of(point),
         };
 
-        if let Some(point) = point {
-            Some((point, self.get(point.0, point.1).unwrap()))
-        } else {
-            None
-        }
+        point.map(|point| (point, self.get(point.0, point.1).unwrap()))
     }
 
     //pub fn is_direction_in_bounds

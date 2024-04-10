@@ -93,8 +93,7 @@ fn get_path_from(
 
     while let Some(&(cur_node, cur_dir)) = path.last() {
         if let Some((next_node, next_type)) = grid.get_in_direction_indexed(cur_node, cur_dir) {
-            if next_node == start {
-                if match cur_dir {
+            if next_node == start && match cur_dir {
                     Direction::North => matches!(
                         start_type,
                         NodeType::Vertical | NodeType::BendSouthEast | NodeType::BendSouthWest
@@ -112,8 +111,7 @@ fn get_path_from(
                         NodeType::Horizontal | NodeType::BendNorthEast | NodeType::BendSouthEast
                     ),
                 } {
-                    break;
-                }
+                break;
             }
 
             if let Some(next_dir) = get_next_direction(*next_type, cur_dir) {
@@ -191,7 +189,9 @@ impl From<(usize, usize)> for Point {
 #[derive(
     Copy, Clone, Debug, strum_macros::Display, PartialEq, Eq, strum_macros::EnumIter, Hash,
 )]
+#[derive(Default)]
 pub enum NodeType {
+    #[default]
     Ground,
     Start,
     Vertical,
@@ -202,11 +202,7 @@ pub enum NodeType {
     BendSouthEast,
 }
 
-impl Default for NodeType {
-    fn default() -> Self {
-        NodeType::Ground
-    }
-}
+
 
 impl TryFrom<char> for NodeType {
     type Error = AdventError;

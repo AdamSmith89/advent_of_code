@@ -16,7 +16,7 @@ pub fn part1(code: &ParsedInput) -> color_eyre::Result<i32> {
         .map(|p| calc_thruster_signal(p, code))
         .try_collect()?;
 
-    Ok(signals.iter().max().ok_or(AdventError::EmptySlice)?.clone())
+    Ok(*signals.iter().max().ok_or(AdventError::EmptySlice)?)
 }
 
 fn calc_thruster_signal(phase_settings: Vec<i32>, code: &ParsedInput) -> color_eyre::Result<i32> {
@@ -40,7 +40,7 @@ pub fn part2(code: &ParsedInput) -> color_eyre::Result<i32> {
         .map(|p| calc_thruster_signal_with_feedback(p, code))
         .try_collect()?;
 
-    Ok(signals.iter().max().ok_or(AdventError::EmptySlice)?.clone())
+    Ok(*signals.iter().max().ok_or(AdventError::EmptySlice)?)
 }
 
 fn calc_thruster_signal_with_feedback(
@@ -62,7 +62,7 @@ fn calc_thruster_signal_with_feedback(
         amp_a_input = run_amplifier(&mut amp_e, d_to_e)?;
 
         if amp_e.has_halted() {
-            return Ok(amp_e.get_last_output()?);
+            return amp_e.get_last_output();
         }
     }
 }

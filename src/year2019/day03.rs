@@ -112,8 +112,7 @@ impl TryFrom<&str> for PathStep {
             return Err(AdventError::UnexpectedValue(
                 String::from("Minimum 2-char string"),
                 value.to_string(),
-            )
-            .into());
+            ));
         }
 
         let (dir, len) = value.split_at(1);
@@ -141,7 +140,7 @@ impl TryFrom<&str> for Direction {
             "R" => Ok(Self::Right),
             "D" => Ok(Self::Down),
             "L" => Ok(Self::Left),
-            _ => Err(AdventError::UnknownPattern(value.to_string()).into()),
+            _ => Err(AdventError::UnknownPattern(value.to_string())),
         }
     }
 }

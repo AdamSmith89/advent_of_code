@@ -23,7 +23,7 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
 pub fn part1((start, end): &ParsedInput) -> color_eyre::Result<u32> {
     let mut valid_pwds = 0;
 
-    let mut next_num = next_non_dec_number(&start);
+    let mut next_num = next_non_dec_number(start);
     while next_num <= *end {
         if has_adjacent_digits(&next_num) {
             valid_pwds += 1;
@@ -40,7 +40,7 @@ pub fn part1((start, end): &ParsedInput) -> color_eyre::Result<u32> {
 pub fn part2((start, end): &ParsedInput) -> color_eyre::Result<u32> {
     let mut valid_pwds = 0;
 
-    let mut next_num = next_non_dec_number(&start);
+    let mut next_num = next_non_dec_number(start);
     while next_num <= *end {
         if has_two_adjacent_digits(&next_num) {
             valid_pwds += 1;
@@ -64,7 +64,7 @@ fn explode_number(num: &u32) -> [u32; 6] {
 }
 
 fn next_non_dec_number(digits: &[u32; 6]) -> [u32; 6] {
-    let mut next_num = digits.clone();
+    let mut next_num = *digits;
 
     for (idx, digit) in digits.iter().enumerate() {
         if idx == digits.len() - 1 {
@@ -102,7 +102,7 @@ fn has_adjacent_digits(digits: &[u32; 6]) -> bool {
 
 fn has_two_adjacent_digits(digits: &[u32; 6]) -> bool {
     let adj_digits = digits.iter().dedup_with_count().collect_vec();
-    adj_digits.iter().find(|(count, _)| *count == 2).is_some()
+    adj_digits.iter().any(|(count, _)| *count == 2)
 }
 
 #[cfg(test)]

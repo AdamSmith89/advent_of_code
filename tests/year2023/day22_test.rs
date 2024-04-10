@@ -12,7 +12,7 @@ const EXAMPLE_INPUT: &str = "\
 
 #[test]
 fn parse_example() {
-    let parsed = parse(EXAMPLE_INPUT).expect("Error parsing input");
+    let _parsed = parse(EXAMPLE_INPUT).expect("Error parsing input");
 
     // assert_eq!(
     //     parsed,

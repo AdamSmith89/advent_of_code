@@ -1,6 +1,5 @@
 use std::{
-    collections::{BTreeSet, HashMap, HashSet},
-    hash::Hash,
+    collections::{HashMap},
 };
 
 use itertools::Itertools;
@@ -34,7 +33,7 @@ fn calc_num_orbits(
 ) -> u32 {
     // Have we already calculated the orbits for the child body?
     if let Some(child_orbits) = orbit_counts.get(child) {
-        return child_orbits.clone();
+        return *child_orbits;
     }
 
     // Stop traversing orbits if we've reached a pre-determined object
@@ -52,11 +51,10 @@ fn calc_num_orbits(
         1
     };
 
-    orbit_counts
+    *orbit_counts
         .entry(child.clone())
         .and_modify(|e| *e = num_orbits)
         .or_insert(num_orbits)
-        .clone() // We are given an &mut of what we inserted/modified so can simply clone for returning
 }
 
 pub fn part2(orbit_map: &ParsedInput) -> color_eyre::Result<usize> {

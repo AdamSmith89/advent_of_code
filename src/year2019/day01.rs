@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use crate::error::AdventError;
+
 
 type ParsedInput = Vec<u32>;
 

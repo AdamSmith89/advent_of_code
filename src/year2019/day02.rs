@@ -18,7 +18,7 @@ pub fn part1(code: &ParsedInput) -> color_eyre::Result<i32> {
 
     let mut icc = IntCodeComputer::load(code.clone());
     icc.run()?;
-    Ok(icc.read(0)?)
+    icc.read(0)
 }
 
 pub fn part2(code: &ParsedInput) -> color_eyre::Result<i32> {

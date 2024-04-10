@@ -1,6 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
-    iter::Successors,
+    collections::{HashMap},
 };
 
 use grid::grid;
@@ -29,16 +28,14 @@ pub fn part1(grid: &ParsedInput) -> color_eyre::Result<usize> {
     let start = grid
         .iter_row(0)
         .enumerate()
-        .find(|(_, tile)| Tile::is_path(tile))
-        .map_or(None, |(col, _)| Some((0usize, col)))
+        .find(|(_, tile)| Tile::is_path(tile)).map(|(col, _)| (0usize, col))
         .ok_or(AdventError::NotFound("Path".to_string()))?;
 
     let last_row = grid.rows() - 1;
     let end = grid
         .iter_row(last_row)
         .enumerate()
-        .find(|(_, tile)| Tile::is_path(tile))
-        .map_or(None, |(col, _)| Some((last_row, col)))
+        .find(|(_, tile)| Tile::is_path(tile)).map(|(col, _)| (last_row, col))
         .ok_or(AdventError::NotFound("Path".to_string()))?;
 
     if let Some(paths) = find_paths(
@@ -63,9 +60,9 @@ pub fn part1(grid: &ParsedInput) -> color_eyre::Result<usize> {
             .unwrap();
         //println!("Longest path = {}", longest_path.len() - 1);
 
-        return Ok(longest_path.len() - 1);
+        Ok(longest_path.len() - 1)
     } else {
-        return Err(AdventError::NotFound("Path".into()).into());
+        Err(AdventError::NotFound("Path".into()).into())
     }
 }
 
@@ -76,8 +73,7 @@ pub fn part2(grid: &ParsedInput) -> color_eyre::Result<usize> {
     let start: Point = grid
         .iter_row(0)
         .enumerate()
-        .find(|(_, tile)| Tile::is_path(tile))
-        .map_or(None, |(col, _)| Some((0usize, col)))
+        .find(|(_, tile)| Tile::is_path(tile)).map(|(col, _)| (0usize, col))
         .ok_or(AdventError::NotFound("Path".to_string()))?
         .into();
 
@@ -85,8 +81,7 @@ pub fn part2(grid: &ParsedInput) -> color_eyre::Result<usize> {
     let end: Point = grid
         .iter_row(last_row)
         .enumerate()
-        .find(|(_, tile)| Tile::is_path(tile))
-        .map_or(None, |(col, _)| Some((last_row, col)))
+        .find(|(_, tile)| Tile::is_path(tile)).map(|(col, _)| (last_row, col))
         .ok_or(AdventError::NotFound("Path".to_string()))?
         .into();
 
@@ -137,7 +132,7 @@ pub fn part2(grid: &ParsedInput) -> color_eyre::Result<usize> {
         if links
             .get(start)
             .is_some_and(|linked_to: &Vec<(Point, usize)>| {
-                linked_to.iter().find(|(p, _)| p == end).is_some()
+                linked_to.iter().any(|(p, _)| p == end)
             })
         {
             continue;
@@ -223,14 +218,13 @@ pub fn find_paths(
 
         if next_moves
             .iter()
-            .find(|(pos, _)| *pos == end.into())
-            .is_some()
+            .any(|(pos, _)| *pos == end.into())
         {
             let mut path = path
                 .iter()
                 .map(|(point, _)| Point::from(*point))
                 .collect_vec();
-            path.push(end.into());
+            path.push(end);
             return Some(vec![path]);
         } else if next_moves.len() == 1 {
             // continue the same path
