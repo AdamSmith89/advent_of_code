@@ -1,14 +1,10 @@
-use std::string;
-
-use itertools::Itertools;
-
 use crate::error::AdventError;
-use crate::year2019::int_code_computer::*;
+use super::int_code_computer::IntCodeComputer;
 
 type ParsedInput = Vec<i32>;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
-    Ok(input.split(',').map(|s| s.parse::<i32>()).try_collect()?)
+    IntCodeComputer::parse_program(input)
 }
 
 // To do this, before running the program,

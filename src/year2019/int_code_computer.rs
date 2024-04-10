@@ -1,24 +1,53 @@
-use std::ops::{Add, Mul};
+use std::{
+    collections::VecDeque,
+    ops::{Add, Mul},
+};
+
+use itertools::Itertools;
 
 use crate::error::AdventError;
 
 use super::op_code::{Mode, OpCode};
 
+#[derive(Debug, Eq, PartialEq, thiserror::Error)]
+pub enum IntCodeError {
+    #[error("Yielding")]
+    Yield,
+}
+
 pub struct IntCodeComputer {
     code: Vec<i32>,
     ip: usize,
-    input_buffer: Option<i32>,
+    input_buffer: VecDeque<i32>,
     output_buffer: Vec<i32>,
+    yield_for_input: bool,
+    halted: bool,
 }
 
 impl IntCodeComputer {
+    pub fn parse_program(input: &str) -> color_eyre::Result<Vec<i32>> {
+        Ok(input
+            .lines()
+            .next()
+            .ok_or(AdventError::EndOfIterator)?
+            .split(',')
+            .map(|s| s.parse::<i32>())
+            .try_collect()?)
+    }
+
     pub fn load(code: Vec<i32>) -> Self {
         Self {
             code,
             ip: 0,
-            input_buffer: None,
+            input_buffer: VecDeque::new(),
             output_buffer: Vec::new(),
+            yield_for_input: false,
+            halted: false,
         }
+    }
+
+    pub fn enable_input_yield(&mut self) {
+        self.yield_for_input = true;
     }
 
     pub fn run(&mut self) -> color_eyre::Result<()> {
@@ -74,19 +103,29 @@ impl IntCodeComputer {
                     //println!("  {param1} == {param2}");
                     self.cmp_op(param1, param2, PartialEq::eq)?
                 }
-                OpCode::End => break,
+                OpCode::End => {
+                    self.halted = true;
+                    break;
+                }
             }
         }
 
         Ok(())
     }
 
-    pub fn set_input(&mut self, input: i32) {
-        self.input_buffer = Some(input);
+    pub fn push_input(&mut self, input: i32) {
+        self.input_buffer.push_back(input);
     }
 
     pub fn get_output(&self) -> &Vec<i32> {
         &self.output_buffer
+    }
+
+    pub fn get_last_output(&self) -> color_eyre::Result<i32> {
+        self.output_buffer
+            .last()
+            .cloned()
+            .ok_or(AdventError::EmptySlice.into())
     }
 
     pub fn read(&self, addr: usize) -> color_eyre::Result<i32> {
@@ -94,6 +133,10 @@ impl IntCodeComputer {
             .get(addr)
             .cloned()
             .ok_or(AdventError::NotFound(addr.to_string()).into())
+    }
+
+    pub fn has_halted(&self) -> bool {
+        self.halted
     }
 
     fn write(&mut self, addr: usize, val: i32) -> color_eyre::Result<()> {
@@ -193,15 +236,19 @@ impl IntCodeComputer {
         // Opcode 3 takes a single integer as input and saves it to the position given by its only parameter.
         // For example, the instruction 3,50 would take an input value and store it at address 50.
 
-        let input = self.input_buffer.ok_or(AdventError::NotFound(String::from(
-            "No input value provided",
-        )))?;
+        if let Some(input) = self.input_buffer.pop_front() {
+            // Parameters that an instruction writes to will always be in Position Mode
+            let addr = self.next()?;
+            self.write(addr as usize, input)?;
 
-        // Parameters that an instruction writes to will always be in Position Mode
-        let addr = self.next()?;
-        self.write(addr as usize, input)?;
-
-        Ok(())
+            Ok(())
+        } else if self.yield_for_input {
+            // We are yielding so will need to re-run this input instruction
+            self.ip -= 1;
+            Err(IntCodeError::Yield.into())
+        } else {
+            Err(AdventError::NotFound(String::from("Input value")).into())
+        }
     }
 
     fn output(&mut self, value: i32) -> color_eyre::Result<()> {
@@ -246,7 +293,7 @@ mod icc_tests {
     #[test]
     fn icc_in() {
         let mut icc = IntCodeComputer::load(vec![3, 3, 99, 0]);
-        icc.set_input(8);
+        icc.push_input(8);
 
         assert!(icc.run().is_ok());
         assert_eq!(vec![3, 3, 99, 8], icc.code);
@@ -363,7 +410,7 @@ mod icc_tests {
         // Using position mode, consider whether the input is equal to 8;
         // output 1 (if it is) or 0 (if it is not).
         let mut icc = IntCodeComputer::load(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8]);
-        icc.set_input(8);
+        icc.push_input(8);
 
         assert!(icc.run().is_ok());
         assert_eq!(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 1, 8], icc.code);
@@ -375,7 +422,7 @@ mod icc_tests {
         // Using position mode, consider whether the input is less than 8;
         // output 1 (if it is) or 0 (if it is not).
         let mut icc = IntCodeComputer::load(vec![3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8]);
-        icc.set_input(10);
+        icc.push_input(10);
 
         assert!(icc.run().is_ok());
         assert_eq!(vec![3, 9, 7, 9, 10, 9, 4, 9, 99, 0, 8], icc.code);
@@ -387,7 +434,7 @@ mod icc_tests {
         // Using immediate mode, consider whether the input is equal to 8;
         // output 1 (if it is) or 0 (if it is not).
         let mut icc = IntCodeComputer::load(vec![3, 3, 1108, -1, 8, 3, 4, 3, 99]);
-        icc.set_input(10);
+        icc.push_input(10);
 
         assert!(icc.run().is_ok());
         assert_eq!(vec![3, 3, 1108, 0, 8, 3, 4, 3, 99], icc.code);
@@ -399,7 +446,7 @@ mod icc_tests {
         // Using immediate mode, consider whether the input is less than 8;
         // output 1 (if it is) or 0 (if it is not).
         let mut icc = IntCodeComputer::load(vec![3, 3, 1107, -1, 8, 3, 4, 3, 99]);
-        icc.set_input(5);
+        icc.push_input(5);
 
         assert!(icc.run().is_ok());
         assert_eq!(vec![3, 3, 1107, 1, 8, 3, 4, 3, 99], icc.code);
@@ -413,7 +460,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![
             3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9,
         ]);
-        icc.set_input(0);
+        icc.push_input(0);
 
         assert!(icc.run().is_ok());
         assert_eq!(
@@ -428,7 +475,7 @@ mod icc_tests {
         // Using immediate mode, take an input,
         // then output 0 if the input was zero or 1 if the input was non-zero
         let mut icc = IntCodeComputer::load(vec![3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1]);
-        icc.set_input(5);
+        icc.push_input(5);
 
         assert!(icc.run().is_ok());
         assert_eq!(
@@ -449,7 +496,7 @@ mod icc_tests {
             0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4,
             20, 1105, 1, 46, 98, 99,
         ]);
-        icc.set_input(5);
+        icc.push_input(5);
 
         assert!(icc.run().is_ok());
         assert_eq!(&vec![999], icc.get_output());
@@ -465,7 +512,7 @@ mod icc_tests {
             0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4,
             20, 1105, 1, 46, 98, 99,
         ]);
-        icc.set_input(8);
+        icc.push_input(8);
 
         assert!(icc.run().is_ok());
         assert_eq!(&vec![1000], icc.get_output());
@@ -480,7 +527,7 @@ mod icc_tests {
             0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4,
             20, 1105, 1, 46, 98, 99,
         ]);
-        icc.set_input(15);
+        icc.push_input(15);
 
         assert!(icc.run().is_ok());
         assert_eq!(&vec![1001], icc.get_output());

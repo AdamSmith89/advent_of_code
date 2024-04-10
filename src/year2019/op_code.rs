@@ -14,7 +14,7 @@ pub enum OpCode {
 }
 
 impl OpCode {
-    fn num_params(&self) -> usize {
+    pub fn num_params(&self) -> usize {
         match self {
             OpCode::Add(_, _) => 3,
             OpCode::Mul(_, _) => 3,
