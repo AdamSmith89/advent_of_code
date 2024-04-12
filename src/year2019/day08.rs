@@ -93,13 +93,7 @@ impl Layer {
     }
 
     fn is_pixel_opaque(&self, row: usize, col: usize) -> Option<bool> {
-        if let Some(pixel) = self.get_pixel_at(row, col) {
-            //println!("{row}, {col} is {pixel}");
-            Some(*pixel != 2)
-        } else {
-            //println!("{row}, {col} is None");
-            None
-        }
+        self.get_pixel_at(row, col).map(|pixel| *pixel != 2)
     }
 }
 
