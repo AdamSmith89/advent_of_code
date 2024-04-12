@@ -58,7 +58,7 @@ fn main() -> color_eyre::eyre::Result<()> {
 
     if puzzles.len() > 1 {
         println!();
-        println!("Puzzles solved = {} in {total_time}s", puzzles.len());
+        println!("Solved {} puzzles in {total_time}s", puzzles.len());
     }
 
     Ok(())
@@ -180,6 +180,7 @@ fn year2019() -> Vec<Puzzle> {
         puzzle!(year2019, day05),
         puzzle!(year2019, day06),
         puzzle!(year2019, day07),
+        puzzle!(year2019, day08),
         // NEXT
     ]
 }

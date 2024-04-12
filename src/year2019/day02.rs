@@ -1,5 +1,5 @@
-use crate::error::AdventError;
 use super::int_code_computer::IntCodeComputer;
+use crate::error::AdventError;
 
 type ParsedInput = Vec<i32>;
 

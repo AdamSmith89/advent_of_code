@@ -1,6 +1,4 @@
-use std::{
-    collections::{HashMap},
-};
+use std::collections::HashMap;
 
 use grid::grid;
 use itertools::Itertools;
@@ -28,14 +26,16 @@ pub fn part1(grid: &ParsedInput) -> color_eyre::Result<usize> {
     let start = grid
         .iter_row(0)
         .enumerate()
-        .find(|(_, tile)| Tile::is_path(tile)).map(|(col, _)| (0usize, col))
+        .find(|(_, tile)| Tile::is_path(tile))
+        .map(|(col, _)| (0usize, col))
         .ok_or(AdventError::NotFound("Path".to_string()))?;
 
     let last_row = grid.rows() - 1;
     let end = grid
         .iter_row(last_row)
         .enumerate()
-        .find(|(_, tile)| Tile::is_path(tile)).map(|(col, _)| (last_row, col))
+        .find(|(_, tile)| Tile::is_path(tile))
+        .map(|(col, _)| (last_row, col))
         .ok_or(AdventError::NotFound("Path".to_string()))?;
 
     if let Some(paths) = find_paths(
@@ -73,7 +73,8 @@ pub fn part2(grid: &ParsedInput) -> color_eyre::Result<usize> {
     let start: Point = grid
         .iter_row(0)
         .enumerate()
-        .find(|(_, tile)| Tile::is_path(tile)).map(|(col, _)| (0usize, col))
+        .find(|(_, tile)| Tile::is_path(tile))
+        .map(|(col, _)| (0usize, col))
         .ok_or(AdventError::NotFound("Path".to_string()))?
         .into();
 
@@ -81,7 +82,8 @@ pub fn part2(grid: &ParsedInput) -> color_eyre::Result<usize> {
     let end: Point = grid
         .iter_row(last_row)
         .enumerate()
-        .find(|(_, tile)| Tile::is_path(tile)).map(|(col, _)| (last_row, col))
+        .find(|(_, tile)| Tile::is_path(tile))
+        .map(|(col, _)| (last_row, col))
         .ok_or(AdventError::NotFound("Path".to_string()))?
         .into();
 
@@ -131,9 +133,7 @@ pub fn part2(grid: &ParsedInput) -> color_eyre::Result<usize> {
 
         if links
             .get(start)
-            .is_some_and(|linked_to: &Vec<(Point, usize)>| {
-                linked_to.iter().any(|(p, _)| p == end)
-            })
+            .is_some_and(|linked_to: &Vec<(Point, usize)>| linked_to.iter().any(|(p, _)| p == end))
         {
             continue;
         }
@@ -216,10 +216,7 @@ pub fn find_paths(
             }
         }
 
-        if next_moves
-            .iter()
-            .any(|(pos, _)| *pos == end.into())
-        {
+        if next_moves.iter().any(|(pos, _)| *pos == end.into()) {
             let mut path = path
                 .iter()
                 .map(|(point, _)| Point::from(*point))

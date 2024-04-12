@@ -1,5 +1,3 @@
-
-
 type ParsedInput = Map;
 
 pub fn parse(_input: &str) -> color_eyre::Result<ParsedInput> {
