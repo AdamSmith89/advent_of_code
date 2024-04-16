@@ -4,6 +4,7 @@ use std::{
 };
 
 use itertools::Itertools;
+use simple_logger::SimpleLogger;
 
 use crate::error::AdventError;
 
@@ -13,36 +14,49 @@ use super::op_code::{Mode, OpCode};
 pub enum IntCodeError {
     #[error("Yielding")]
     Yield,
+    #[error("Invalid memory address {0}")]
+    InvalidAccess(isize),
+    #[error("No input value provided")]
+    NoInput,
 }
 
 pub struct IntCodeComputer {
-    code: Vec<i32>,
+    memory: Vec<i64>,
     ip: usize,
-    input_buffer: VecDeque<i32>,
-    output_buffer: Vec<i32>,
+    rel_base: usize,
+
+    input_buffer: VecDeque<i64>,
+    output_buffer: Vec<i64>,
+
     yield_for_input: bool,
     halted: bool,
+    debug: bool,
 }
 
 impl IntCodeComputer {
-    pub fn parse_program(input: &str) -> color_eyre::Result<Vec<i32>> {
+    pub fn parse_program(input: &str) -> color_eyre::Result<Vec<i64>> {
         Ok(input
             .lines()
             .next()
             .ok_or(AdventError::EndOfIterator)?
             .split(',')
-            .map(|s| s.parse::<i32>())
+            .map(|s| s.parse::<i64>())
             .try_collect()?)
     }
 
-    pub fn load(code: Vec<i32>) -> Self {
+    pub fn load(code: Vec<i64>) -> Self {
+        let mut memory = code;
+        memory.resize(256, -1);
+
         Self {
-            code,
+            memory,
             ip: 0,
+            rel_base: 0,
             input_buffer: VecDeque::new(),
             output_buffer: Vec::new(),
             yield_for_input: false,
             halted: false,
+            debug: false,
         }
     }
 
@@ -50,58 +64,68 @@ impl IntCodeComputer {
         self.yield_for_input = true;
     }
 
+    pub fn enable_debug_mode(&mut self) -> color_eyre::Result<()> {
+        Ok(SimpleLogger::new().init()?)
+    }
+
     pub fn run(&mut self) -> color_eyre::Result<()> {
-        //println!("{:?}", self.code);
+        log::debug!("{:?}", self.memory);
         loop {
             match self.parse_instruction()? {
                 OpCode::Add(mode1, mode2) => {
                     let param1 = self.next_with_mode(mode1)?;
                     let param2 = self.next_with_mode(mode2)?;
 
-                    //println!("  {param1} + {param2}");
+                    log::debug!("  {param1} + {param2}");
                     self.binary_op(param1, param2, Add::add)?
                 }
                 OpCode::Mul(mode1, mode2) => {
                     let param1 = self.next_with_mode(mode1)?;
                     let param2 = self.next_with_mode(mode2)?;
 
-                    //println!("  {param1} x {param2}");
+                    log::debug!("  {param1} x {param2}");
                     self.binary_op(param1, param2, Mul::mul)?
                 }
                 OpCode::In => self.input()?,
                 OpCode::Out(mode) => {
                     let value = self.next_with_mode(mode)?;
 
-                    //println!("  {value}");
+                    log::debug!("  {value}");
                     self.output(value)?
                 }
                 OpCode::JNZ(mode1, mode2) => {
                     let value = self.next_with_mode(mode1)?;
                     let jmp_addr = self.next_with_mode(mode2)?;
 
-                    //println!("  if {value} != 0 then jmp {jmp_addr}");
+                    log::debug!("  if {value} != 0 then jmp {jmp_addr}");
                     self.jmp_op(value, jmp_addr as usize, PartialEq::ne)?
                 }
                 OpCode::JZ(mode1, mode2) => {
                     let value = self.next_with_mode(mode1)?;
                     let jmp_addr = self.next_with_mode(mode2)?;
 
-                    //println!("  if {value} == 0 then jmp {jmp_addr}");
+                    log::debug!("  if {value} == 0 then jmp {jmp_addr}");
                     self.jmp_op(value, jmp_addr as usize, PartialEq::eq)?
                 }
                 OpCode::LT(mode1, mode2) => {
                     let param1 = self.next_with_mode(mode1)?;
                     let param2 = self.next_with_mode(mode2)?;
 
-                    //println!("  {param1} < {param2}");
+                    log::debug!("  {param1} < {param2}");
                     self.cmp_op(param1, param2, PartialOrd::lt)?
                 }
                 OpCode::EQ(mode1, mode2) => {
                     let param1 = self.next_with_mode(mode1)?;
                     let param2 = self.next_with_mode(mode2)?;
 
-                    //println!("  {param1} == {param2}");
+                    log::debug!("  {param1} == {param2}");
                     self.cmp_op(param1, param2, PartialEq::eq)?
+                }
+                OpCode::RBO(mode) => {
+                    let param = self.next_with_mode(mode)?;
+
+                    log::debug!("  adjust rel_base by {param}");
+                    self.adj_rel_base(param)?
                 }
                 OpCode::End => {
                     self.halted = true;
@@ -113,74 +137,83 @@ impl IntCodeComputer {
         Ok(())
     }
 
-    pub fn push_input(&mut self, input: i32) {
+    pub fn push_input(&mut self, input: i64) {
         self.input_buffer.push_back(input);
     }
 
-    pub fn get_output(&self) -> &Vec<i32> {
+    pub fn get_output(&self) -> &Vec<i64> {
         &self.output_buffer
     }
 
-    pub fn get_last_output(&self) -> color_eyre::Result<i32> {
-        self.output_buffer
-            .last()
-            .cloned()
-            .ok_or(AdventError::EmptySlice.into())
+    pub fn get_last_output(&self) -> Option<&i64> {
+        self.output_buffer.last()
     }
 
-    pub fn read(&self, addr: usize) -> color_eyre::Result<i32> {
-        self.code
+    pub fn read(&self, addr: usize) -> Result<i64, IntCodeError> {
+        self.memory
             .get(addr)
             .cloned()
-            .ok_or(AdventError::NotFound(addr.to_string()).into())
+            .ok_or(IntCodeError::InvalidAccess(addr as isize))
     }
 
     pub fn has_halted(&self) -> bool {
         self.halted
     }
 
-    fn write(&mut self, addr: usize, val: i32) -> color_eyre::Result<()> {
-        if let Some(cur_val) = self.code.get_mut(addr) {
-            //println!("  Writing {val} to {addr}");
+    fn read_block(&self, addr: usize, len: usize) -> Result<&[i64], IntCodeError> {
+        let end = addr + len;
+
+        self.memory
+            .get(addr..end)
+            .ok_or(IntCodeError::InvalidAccess(addr as isize))
+    }
+
+    fn write(&mut self, addr: usize, val: i64) -> Result<(), IntCodeError> {
+        if let Some(cur_val) = self.memory.get_mut(addr) {
+            log::debug!("  Writing {val} to {addr}");
             *cur_val = val;
             Ok(())
         } else {
-            Err(AdventError::NotFound(addr.to_string()).into())
+            Err(IntCodeError::InvalidAccess(addr as isize))
         }
     }
 
     fn parse_instruction(&mut self) -> color_eyre::Result<OpCode> {
-        //print!("[{}] ", self.ip);
-
         let raw_val = self.next()?;
         let op = OpCode::try_from(raw_val)?;
 
-        //let upper = self.code.len().min(self.ip + op.num_params());
-        //let context = &self.code[self.ip - 1..upper];
-        //println!("{op:?} ({context:?})");
+        let upper = self.memory.len().min(self.ip + op.num_params());
+        let context = &self.memory[self.ip - 1..upper];
+        log::debug!("[{}] {op:?} ({context:?})", self.ip);
 
         Ok(op)
     }
 
     // Reads value at instruction pointer then advances it one step
-    fn next(&mut self) -> color_eyre::Result<i32> {
+    fn next(&mut self) -> Result<i64, IntCodeError> {
         let value = self.read(self.ip);
         self.ip += 1;
 
         value
     }
 
-    fn next_with_mode(&mut self, mode: Mode) -> color_eyre::Result<i32> {
+    fn next_with_mode(&mut self, mode: Mode) -> Result<i64, IntCodeError> {
         let value = self.next()?;
         match mode {
             Mode::Pos => self.read(value as usize),
             Mode::Imm => Ok(value),
+            Mode::Rel => {
+                let addr = self.rel_base.checked_add_signed(value as isize).ok_or(
+                    IntCodeError::InvalidAccess(self.rel_base as isize - value as isize),
+                )?;
+                self.read(addr)
+            }
         }
     }
 
-    fn binary_op<Op>(&mut self, param1: i32, param2: i32, op: Op) -> color_eyre::Result<()>
+    fn binary_op<Op>(&mut self, param1: i64, param2: i64, op: Op) -> color_eyre::Result<()>
     where
-        Op: FnOnce(i32, i32) -> i32,
+        Op: FnOnce(i64, i64) -> i64,
     {
         // Opcode 1 adds together numbers read from two positions and stores the result in a third position.
         // Opcode 2 multiplies together numbers read from two positions and stores the result in a third position.
@@ -196,9 +229,9 @@ impl IntCodeComputer {
         Ok(())
     }
 
-    fn jmp_op<Op>(&mut self, value: i32, jmp_addr: usize, op: Op) -> color_eyre::Result<()>
+    fn jmp_op<Op>(&mut self, value: i64, jmp_addr: usize, op: Op) -> color_eyre::Result<()>
     where
-        Op: FnOnce(&i32, &i32) -> bool,
+        Op: FnOnce(&i64, &i64) -> bool,
     {
         // Opcode 5 is jump-if-true: if the first parameter is non-zero,
         // Opcode 6 is jump-if-false: if the first parameter is zero,
@@ -212,9 +245,9 @@ impl IntCodeComputer {
         Ok(())
     }
 
-    fn cmp_op<Op>(&mut self, param1: i32, param2: i32, op: Op) -> color_eyre::Result<()>
+    fn cmp_op<Op>(&mut self, param1: i64, param2: i64, op: Op) -> color_eyre::Result<()>
     where
-        Op: FnOnce(&i32, &i32) -> bool,
+        Op: FnOnce(&i64, &i64) -> bool,
     {
         // Opcode 7 is less than: if the first parameter is less than the second parameter,
         // Opcode 8 is equals: if the first parameter is equal to the second parameter
@@ -232,7 +265,7 @@ impl IntCodeComputer {
         Ok(())
     }
 
-    fn input(&mut self) -> color_eyre::Result<()> {
+    fn input(&mut self) -> Result<(), IntCodeError> {
         // Opcode 3 takes a single integer as input and saves it to the position given by its only parameter.
         // For example, the instruction 3,50 would take an input value and store it at address 50.
 
@@ -247,11 +280,11 @@ impl IntCodeComputer {
             self.ip -= 1;
             Err(IntCodeError::Yield.into())
         } else {
-            Err(AdventError::NotFound(String::from("Input value")).into())
+            Err(IntCodeError::NoInput)
         }
     }
 
-    fn output(&mut self, value: i32) -> color_eyre::Result<()> {
+    fn output(&mut self, value: i64) -> color_eyre::Result<()> {
         // Opcode 4 outputs the value of its only parameter.
         // For example, the instruction 4,50 would output the value at address 50.
 
@@ -260,6 +293,24 @@ impl IntCodeComputer {
 
         Ok(())
     }
+
+    fn adj_rel_base(&mut self, value: i64) -> color_eyre::Result<()> {
+        // Opcode 9 adjusts the relative base address by the value of its only parameter
+        // For example, the instruction 109, -10 would decrease the relative base address by 10
+
+        self.rel_base =
+            self.rel_base
+                .checked_add_signed(value as isize)
+                .ok_or(IntCodeError::InvalidAccess(
+                    self.rel_base as isize - value as isize,
+                ))?;
+
+        Ok(())
+    }
+
+    fn dbg() {
+
+    }
 }
 
 #[cfg(test)]
@@ -267,11 +318,36 @@ mod icc_tests {
     use super::IntCodeComputer;
 
     #[test]
+    fn icc_read_block_ok() {
+        let icc = IntCodeComputer::load(vec![1, 2, 3, 4, 5]);
+
+        assert_eq!(Ok(&[2, 3, 4][..]), icc.read_block(1, 3));
+    }
+
+    #[test]
+    fn icc_read_block_err_too_long() {
+        // ICC defaults to having 256 memory slots filled with -1 - it doesn't yet have the
+        // concept of unintialized memory
+        let icc = IntCodeComputer::load(vec![1, 2, 3, 4, 5]);
+
+        assert!(icc.read_block(1, 1000).is_err());
+    }
+
+    #[test]
+    fn icc_read_block_err_out_of_bounds() {
+        // ICC defaults to having 256 memory slots filled with -1 - it doesn't yet have the
+        // concept of unintialized memory
+        let icc = IntCodeComputer::load(vec![1, 2, 3, 4, 5]);
+
+        assert!(icc.read_block(1000, 3).is_err());
+    }
+
+    #[test]
     fn icc_end() {
         let mut icc = IntCodeComputer::load(vec![99]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![99], icc.code);
+        assert_eq!(Ok(&[99][..]), icc.read_block(0, 1));
     }
 
     #[test]
@@ -279,7 +355,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1, 0, 0, 0, 99]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![2, 0, 0, 0, 99], icc.code);
+        assert_eq!(Ok(&[2, 0, 0, 0, 99][..]), icc.read_block(0, 5));
     }
 
     #[test]
@@ -287,7 +363,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![2, 3, 0, 3, 99]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![2, 3, 0, 6, 99], icc.code);
+        assert_eq!(Ok(&[2, 3, 0, 6, 99][..]), icc.read_block(0, 5));
     }
 
     #[test]
@@ -296,7 +372,7 @@ mod icc_tests {
         icc.push_input(8);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![3, 3, 99, 8], icc.code);
+        assert_eq!(Ok(&[3, 3, 99, 8][..]), icc.read_block(0, 4));
     }
 
     #[test]
@@ -304,7 +380,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![4, 3, 104, 8, 99]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![4, 3, 104, 8, 99], icc.code);
+        assert_eq!(Ok(&[4, 3, 104, 8, 99][..]), icc.read_block(0, 5));
         assert_eq!(&vec![8, 8], icc.get_output());
     }
 
@@ -314,7 +390,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1105, 1, 4, 0, 99]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![1105, 1, 4, 0, 99], icc.code);
+        assert_eq!(Ok(&[1105, 1, 4, 0, 99][..]), icc.read_block(0, 5));
     }
 
     #[test]
@@ -323,7 +399,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1105, 0, 4, 99, 0]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![1105, 0, 4, 99, 0], icc.code);
+        assert_eq!(Ok(&[1105, 0, 4, 99, 0][..]), icc.read_block(0, 5));
     }
 
     #[test]
@@ -332,7 +408,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1106, 0, 4, 0, 99]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![1106, 0, 4, 0, 99], icc.code);
+        assert_eq!(Ok(&[1106, 0, 4, 0, 99][..]), icc.read_block(0, 5));
     }
 
     #[test]
@@ -341,7 +417,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1106, 1, 4, 99, 0]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![1106, 1, 4, 99, 0], icc.code);
+        assert_eq!(Ok(&[1106, 1, 4, 99, 0][..]), icc.read_block(0, 5));
     }
 
     #[test]
@@ -350,7 +426,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1007, 5, 1, 6, 99, 0, 0]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![1007, 5, 1, 6, 99, 0, 1], icc.code);
+        assert_eq!(Ok(&[1007, 5, 1, 6, 99, 0, 1][..]), icc.read_block(0, 7));
     }
 
     #[test]
@@ -359,7 +435,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1007, 5, 0, 6, 99, 1, 1]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![1007, 5, 0, 6, 99, 1, 0], icc.code);
+        assert_eq!(Ok(&[1007, 5, 0, 6, 99, 1, 0][..]), icc.read_block(0, 7));
     }
 
     #[test]
@@ -368,7 +444,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1007, 5, 1, 6, 99, 1, 1]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![1007, 5, 1, 6, 99, 1, 0], icc.code);
+        assert_eq!(Ok(&[1007, 5, 1, 6, 99, 1, 0][..]), icc.read_block(0, 7));
     }
 
     #[test]
@@ -377,7 +453,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1008, 5, 1, 6, 99, 1, 0]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![1008, 5, 1, 6, 99, 1, 1], icc.code);
+        assert_eq!(Ok(&[1008, 5, 1, 6, 99, 1, 1][..]), icc.read_block(0, 7));
     }
 
     #[test]
@@ -386,7 +462,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1008, 5, 0, 6, 99, 1, 1]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![1008, 5, 0, 6, 99, 1, 0], icc.code);
+        assert_eq!(Ok(&[1008, 5, 0, 6, 99, 1, 0][..]), icc.read_block(0, 7));
     }
 
     #[test]
@@ -394,7 +470,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1101, -4, 3, 0, 99]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![-1, -4, 3, 0, 99], icc.code);
+        assert_eq!(Ok(&[-1, -4, 3, 0, 99][..]), icc.read_block(0, 5));
     }
 
     #[test]
@@ -402,7 +478,40 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1101, 2, 4, 5, 99, 0]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![1101, 2, 4, 5, 99, 6], icc.code);
+        assert_eq!(Ok(&[1101, 2, 4, 5, 99, 6][..]), icc.read_block(0, 6));
+    }
+
+    #[test]
+    fn icc_rbo_imm_inc() {
+        let mut icc = IntCodeComputer::load(vec![109, 19, 99]);
+
+        assert!(icc.run().is_ok());
+        assert_eq!(19, icc.rel_base);
+    }
+
+    #[test]
+    fn icc_rbo_pos_dec() {
+        let mut icc = IntCodeComputer::load(vec![09, 3, 99, -10]);
+        icc.rel_base = 100;
+
+        assert!(icc.run().is_ok());
+        assert_eq!(90, icc.rel_base);
+    }
+
+    #[test]
+    fn icc_rbo_dec_err() {
+        let mut icc = IntCodeComputer::load(vec![109, -5, 99]);
+
+        assert!(icc.run().is_err());
+    }
+
+    #[test]
+    fn icc_add_rel() {
+        let mut icc = IntCodeComputer::load(vec![2201, 1, 2, 5, 99, 0, 5, 6]);
+        icc.rel_base = 5;
+
+        assert!(icc.run().is_ok());
+        assert_eq!(Ok(&[2201, 1, 2, 5, 99, 11, 5, 6][..]), icc.read_block(0, 8));
     }
 
     #[test]
@@ -413,7 +522,10 @@ mod icc_tests {
         icc.push_input(8);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![3, 9, 8, 9, 10, 9, 4, 9, 99, 1, 8], icc.code);
+        assert_eq!(
+            Ok(&[3, 9, 8, 9, 10, 9, 4, 9, 99, 1, 8][..]),
+            icc.read_block(0, 11)
+        );
         assert_eq!(&vec![1], icc.get_output());
     }
 
@@ -425,7 +537,10 @@ mod icc_tests {
         icc.push_input(10);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![3, 9, 7, 9, 10, 9, 4, 9, 99, 0, 8], icc.code);
+        assert_eq!(
+            Ok(&[3, 9, 7, 9, 10, 9, 4, 9, 99, 0, 8][..]),
+            icc.read_block(0, 11)
+        );
         assert_eq!(&vec![0], icc.get_output());
     }
 
@@ -437,7 +552,10 @@ mod icc_tests {
         icc.push_input(10);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![3, 3, 1108, 0, 8, 3, 4, 3, 99], icc.code);
+        assert_eq!(
+            Ok(&[3, 3, 1108, 0, 8, 3, 4, 3, 99][..]),
+            icc.read_block(0, 9)
+        );
         assert_eq!(&vec![0], icc.get_output());
     }
 
@@ -449,7 +567,10 @@ mod icc_tests {
         icc.push_input(5);
 
         assert!(icc.run().is_ok());
-        assert_eq!(vec![3, 3, 1107, 1, 8, 3, 4, 3, 99], icc.code);
+        assert_eq!(
+            Ok(&[3, 3, 1107, 1, 8, 3, 4, 3, 99][..]),
+            icc.read_block(0, 9)
+        );
         assert_eq!(&vec![1], icc.get_output());
     }
 
@@ -464,8 +585,8 @@ mod icc_tests {
 
         assert!(icc.run().is_ok());
         assert_eq!(
-            vec![3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, 0, 0, 1, 9],
-            icc.code
+            Ok(&[3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, 0, 0, 1, 9][..]),
+            icc.read_block(0, 16)
         );
         assert_eq!(&vec![0], icc.get_output());
     }
@@ -479,8 +600,8 @@ mod icc_tests {
 
         assert!(icc.run().is_ok());
         assert_eq!(
-            vec![3, 3, 1105, 5, 9, 1101, 0, 0, 12, 4, 12, 99, 1],
-            icc.code
+            Ok(&[3, 3, 1105, 5, 9, 1101, 0, 0, 12, 4, 12, 99, 1][..]),
+            icc.read_block(0, 13)
         );
         assert_eq!(&vec![1], icc.get_output());
     }
@@ -531,5 +652,35 @@ mod icc_tests {
 
         assert!(icc.run().is_ok());
         assert_eq!(&vec![1001], icc.get_output());
+    }
+
+    #[test]
+    fn icc_day09_part1_more_memory() {
+        // Takes no input and poduces a copy of itself as output
+        let mut icc = IntCodeComputer::load(vec![
+            109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 15, 101, 1006, 101, 0, 99,
+        ]);
+
+        assert!(icc.run().is_ok());
+        assert_eq!(
+            &vec![109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 15, 101, 1006, 101, 0, 99,],
+            icc.get_output()
+        );
+    }
+
+    #[test]
+    fn icc_day09_part1_big_number_support_1() {
+        let mut icc = IntCodeComputer::load(vec![1102, 34915192, 34915192, 7, 4, 7, 99, 0]);
+
+        assert!(icc.run().is_ok());
+        assert_eq!(&vec![1219070632396864], icc.get_output());
+    }
+
+    #[test]
+    fn icc_day09_part1_big_number_support_2() {
+        let mut icc = IntCodeComputer::load(vec![104, 1125899906842624, 99]);
+
+        assert!(icc.run().is_ok());
+        assert_eq!(&vec![1125899906842624], icc.get_output());
     }
 }

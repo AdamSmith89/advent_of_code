@@ -10,6 +10,7 @@ pub enum OpCode {
     JZ(Mode, Mode),
     LT(Mode, Mode),
     EQ(Mode, Mode),
+    RBO(Mode),
     End,
 }
 
@@ -24,15 +25,16 @@ impl OpCode {
             OpCode::JZ(_, _) => 2,
             OpCode::LT(_, _) => 2,
             OpCode::EQ(_, _) => 3,
+            OpCode::RBO(_) => 1,
             OpCode::End => 0,
         }
     }
 }
 
-impl TryFrom<i32> for OpCode {
+impl TryFrom<i64> for OpCode {
     type Error = color_eyre::Report;
 
-    fn try_from(value: i32) -> Result<Self, Self::Error> {
+    fn try_from(value: i64) -> Result<Self, Self::Error> {
         let code = value % 100; // The 2 rightmost digits represent the OpCode
 
         // The remaining digits represent parameter modes and can be different per OpCode
@@ -87,6 +89,11 @@ impl TryFrom<i32> for OpCode {
 
                 Ok(Self::EQ(mode1, mode2))
             }
+            9 => {
+                let mode = Mode::try_from(modes % 10)?;
+
+                Ok(Self::RBO(mode))
+            }
             99 => Ok(Self::End),
             _ => Err(AdventError::UnknownPattern(value.to_string()).into()),
         }
@@ -97,15 +104,17 @@ impl TryFrom<i32> for OpCode {
 pub enum Mode {
     Pos,
     Imm,
+    Rel,
 }
 
-impl TryFrom<i32> for Mode {
+impl TryFrom<i64> for Mode {
     type Error = color_eyre::Report;
 
-    fn try_from(value: i32) -> Result<Self, Self::Error> {
+    fn try_from(value: i64) -> Result<Self, Self::Error> {
         match value {
             0 => Ok(Mode::Pos),
             1 => Ok(Mode::Imm),
+            2 => Ok(Mode::Rel),
             _ => Err(AdventError::UnknownPattern(value.to_string()).into()),
         }
     }
@@ -172,6 +181,13 @@ mod tests {
     }
 
     #[test]
+    fn opcode_try_from_arb() {
+        let result = OpCode::try_from(9);
+        assert!(result.is_ok());
+        assert_eq!(OpCode::RBO(Mode::Pos), result.unwrap());
+    }
+
+    #[test]
     fn opcode_try_from_end() {
         let result = OpCode::try_from(99);
         assert!(result.is_ok());
@@ -204,5 +220,12 @@ mod tests {
         let result = OpCode::try_from(0102);
         assert!(result.is_ok());
         assert_eq!(OpCode::Mul(Mode::Imm, Mode::Pos), result.unwrap());
+    }
+
+    #[test]
+    fn opcode_try_from_rel_mode() {
+        let result = OpCode::try_from(2201);
+        assert!(result.is_ok());
+        assert_eq!(OpCode::Add(Mode::Rel, Mode::Rel), result.unwrap());
     }
 }

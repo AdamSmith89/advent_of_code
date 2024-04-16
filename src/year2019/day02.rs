@@ -1,7 +1,7 @@
 use super::int_code_computer::IntCodeComputer;
 use crate::error::AdventError;
 
-type ParsedInput = Vec<i32>;
+type ParsedInput = Vec<i64>;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     IntCodeComputer::parse_program(input)
@@ -11,17 +11,17 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
 // replace position 1 with the value 12 and
 // replace position 2 with the value 2.
 // What value is left at position 0 after the program halts?
-pub fn part1(code: &ParsedInput) -> color_eyre::Result<i32> {
+pub fn part1(code: &ParsedInput) -> color_eyre::Result<i64> {
     let mut code = code.clone();
     code[1] = 12;
     code[2] = 2;
 
     let mut icc = IntCodeComputer::load(code.clone());
     icc.run()?;
-    icc.read(0)
+    Ok(icc.read(0)?)
 }
 
-pub fn part2(code: &ParsedInput) -> color_eyre::Result<i32> {
+pub fn part2(code: &ParsedInput) -> color_eyre::Result<i64> {
     let mut code = code.clone();
 
     for noun in 0..100 {

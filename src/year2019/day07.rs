@@ -4,13 +4,13 @@ use crate::error::AdventError;
 
 use super::int_code_computer::{IntCodeComputer, IntCodeError};
 
-type ParsedInput = Vec<i32>;
+type ParsedInput = Vec<i64>;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     IntCodeComputer::parse_program(input)
 }
 
-pub fn part1(code: &ParsedInput) -> color_eyre::Result<i32> {
+pub fn part1(code: &ParsedInput) -> color_eyre::Result<i64> {
     let signals: Vec<_> = (0..5)
         .permutations(5)
         .map(|p| calc_thruster_signal(p, code))
@@ -19,7 +19,7 @@ pub fn part1(code: &ParsedInput) -> color_eyre::Result<i32> {
     Ok(*signals.iter().max().ok_or(AdventError::EmptySlice)?)
 }
 
-fn calc_thruster_signal(phase_settings: Vec<i32>, code: &ParsedInput) -> color_eyre::Result<i32> {
+fn calc_thruster_signal(phase_settings: Vec<i64>, code: &ParsedInput) -> color_eyre::Result<i64> {
     let mut io = 0;
     for phase in phase_settings {
         let mut icc = IntCodeComputer::load(code.clone());
@@ -28,13 +28,17 @@ fn calc_thruster_signal(phase_settings: Vec<i32>, code: &ParsedInput) -> color_e
 
         icc.run()?;
 
-        io = icc.get_last_output()?;
+        io = *icc
+            .get_last_output()
+            .ok_or(AdventError::LogicError(String::from(
+                "No output from amplifier",
+            )))?;
     }
 
     Ok(io)
 }
 
-pub fn part2(code: &ParsedInput) -> color_eyre::Result<i32> {
+pub fn part2(code: &ParsedInput) -> color_eyre::Result<i64> {
     let signals: Vec<_> = (5..10)
         .permutations(5)
         .map(|p| calc_thruster_signal_with_feedback(p, code))
@@ -44,9 +48,9 @@ pub fn part2(code: &ParsedInput) -> color_eyre::Result<i32> {
 }
 
 fn calc_thruster_signal_with_feedback(
-    phase_settings: Vec<i32>,
+    phase_settings: Vec<i64>,
     code: &ParsedInput,
-) -> color_eyre::Result<i32> {
+) -> color_eyre::Result<i64> {
     let mut amp_a = new_amplifier(code, phase_settings[0]);
     let mut amp_b = new_amplifier(code, phase_settings[1]);
     let mut amp_c = new_amplifier(code, phase_settings[2]);
@@ -62,12 +66,15 @@ fn calc_thruster_signal_with_feedback(
         amp_a_input = run_amplifier(&mut amp_e, d_to_e)?;
 
         if amp_e.has_halted() {
-            return amp_e.get_last_output();
+            return amp_e
+                .get_last_output()
+                .cloned()
+                .ok_or(AdventError::LogicError(String::from("No output from amplifier")).into());
         }
     }
 }
 
-fn new_amplifier(code: &ParsedInput, phase_setting: i32) -> IntCodeComputer {
+fn new_amplifier(code: &ParsedInput, phase_setting: i64) -> IntCodeComputer {
     let mut amp = IntCodeComputer::load(code.clone());
     amp.enable_input_yield();
     amp.push_input(phase_setting);
@@ -75,7 +82,7 @@ fn new_amplifier(code: &ParsedInput, phase_setting: i32) -> IntCodeComputer {
     amp
 }
 
-fn run_amplifier(amp: &mut IntCodeComputer, input: i32) -> color_eyre::Result<i32> {
+fn run_amplifier(amp: &mut IntCodeComputer, input: i64) -> color_eyre::Result<i64> {
     amp.push_input(input);
 
     if let Err(report) = amp.run() {
@@ -83,10 +90,14 @@ fn run_amplifier(amp: &mut IntCodeComputer, input: i32) -> color_eyre::Result<i3
 
         if let Some(IntCodeError::Yield) = root_cause.downcast_ref() {
             amp.get_last_output()
+                .cloned()
+                .ok_or(AdventError::LogicError(String::from("No output from amplifier")).into())
         } else {
             Err(report.wrap_err("Failed to run Amplifier A"))
         }
     } else {
         amp.get_last_output()
+            .cloned()
+            .ok_or(AdventError::LogicError(String::from("No output from amplifier")).into())
     }
 }
