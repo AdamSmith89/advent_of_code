@@ -86,7 +86,7 @@ impl Layer {
 
     fn get_pixel_at(&self, row: usize, col: usize) -> Option<&u32> {
         let index = (row * WIDTH) + col;
-        
+
         //println!("Getting {row}, {col} at {index}");
 
         self.pixels.get(index)
