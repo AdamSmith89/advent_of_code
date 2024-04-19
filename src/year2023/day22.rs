@@ -10,8 +10,8 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     let mut bricks: Vec<Brick> = input.lines().map(Brick::try_from).try_collect()?;
     bricks.sort_unstable_by(Brick::compare_z);
 
-    for i in 0..bricks.len() {
-        bricks[i].id = i as u32 + 1;
+    for (i, brick) in bricks.iter_mut().enumerate() {
+        brick.id = i as u32 + 1;
     }
 
     // Simulate the bricks falling

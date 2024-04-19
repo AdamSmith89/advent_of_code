@@ -88,13 +88,13 @@ fn gen_path(steps: &Vec<PathStep>) -> Vec<(i32, i32)> {
     path
 }
 
-fn intersection(vec1: &Vec<(i32, i32)>, vec2: &Vec<(i32, i32)>) -> Vec<(i32, i32)> {
+fn intersection(vec1: &[(i32, i32)], vec2: &[(i32, i32)]) -> Vec<(i32, i32)> {
     let set1 = vec1.iter().collect::<HashSet<_>>();
     let set2 = vec2.iter().collect::<HashSet<_>>();
     set1.intersection(&set2).copied().copied().collect_vec()
 }
 
-fn num_path_steps_to_point(path: &Vec<(i32, i32)>, point: &(i32, i32)) -> Option<usize> {
+fn num_path_steps_to_point(path: &[(i32, i32)], point: &(i32, i32)) -> Option<usize> {
     path.iter().position(|path_point| path_point == point)
 }
 
