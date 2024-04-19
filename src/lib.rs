@@ -15,6 +15,7 @@ pub mod year2019 {
     pub mod day07;
     pub mod day08;
     pub mod day09;
+    pub mod day10;
     pub mod int_code_computer;
     pub mod op_code;
     // NEXT

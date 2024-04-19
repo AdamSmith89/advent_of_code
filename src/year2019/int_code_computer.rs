@@ -238,7 +238,13 @@ impl IntCodeComputer {
         }
     }
 
-    fn binary_op<Op>(&mut self, param1: i64, param2: i64, write_addr: usize, op: Op) -> color_eyre::Result<()>
+    fn binary_op<Op>(
+        &mut self,
+        param1: i64,
+        param2: i64,
+        write_addr: usize,
+        op: Op,
+    ) -> color_eyre::Result<()>
     where
         Op: FnOnce(i64, i64) -> i64,
     {
@@ -269,7 +275,13 @@ impl IntCodeComputer {
         Ok(())
     }
 
-    fn cmp_op<Op>(&mut self, param1: i64, param2: i64, write_addr: usize, op: Op) -> color_eyre::Result<()>
+    fn cmp_op<Op>(
+        &mut self,
+        param1: i64,
+        param2: i64,
+        write_addr: usize,
+        op: Op,
+    ) -> color_eyre::Result<()>
     where
         Op: FnOnce(&i64, &i64) -> bool,
     {
@@ -530,7 +542,10 @@ mod icc_tests {
         icc.rel_base = 5;
 
         assert!(icc.run().is_ok());
-        assert_eq!(Ok(&[2201, 1, 2, 5, 99, 11, 5, 6][..]), icc._read_block(0, 8));
+        assert_eq!(
+            Ok(&[2201, 1, 2, 5, 99, 11, 5, 6][..]),
+            icc._read_block(0, 8)
+        );
     }
 
     #[test]

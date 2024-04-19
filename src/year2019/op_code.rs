@@ -144,7 +144,10 @@ mod tests {
     fn opcode_try_from_add() {
         let result = OpCode::try_from(1);
         assert!(result.is_ok());
-        assert_eq!(OpCode::Add(Mode::Pos, Mode::Pos, Mode::Pos), result.unwrap());
+        assert_eq!(
+            OpCode::Add(Mode::Pos, Mode::Pos, Mode::Pos),
+            result.unwrap()
+        );
     }
 
     #[test]
@@ -157,7 +160,10 @@ mod tests {
     fn opcode_try_from_mul() {
         let result = OpCode::try_from(2);
         assert!(result.is_ok());
-        assert_eq!(OpCode::Mul(Mode::Pos, Mode::Pos, Mode::Pos), result.unwrap());
+        assert_eq!(
+            OpCode::Mul(Mode::Pos, Mode::Pos, Mode::Pos),
+            result.unwrap()
+        );
     }
 
     #[test]
@@ -234,20 +240,29 @@ mod tests {
     fn opcode_try_from_mixed_mode() {
         let result = OpCode::try_from(21001);
         assert!(result.is_ok());
-        assert_eq!(OpCode::Add(Mode::Pos, Mode::Imm, Mode::Rel), result.unwrap());
+        assert_eq!(
+            OpCode::Add(Mode::Pos, Mode::Imm, Mode::Rel),
+            result.unwrap()
+        );
     }
 
     #[test]
     fn opcode_try_from_mixed_mode_leading_zero() {
         let result = OpCode::try_from(02102);
         assert!(result.is_ok());
-        assert_eq!(OpCode::Mul(Mode::Imm, Mode::Rel, Mode::Pos), result.unwrap());
+        assert_eq!(
+            OpCode::Mul(Mode::Imm, Mode::Rel, Mode::Pos),
+            result.unwrap()
+        );
     }
 
     #[test]
     fn opcode_try_from_rel_mode() {
         let result = OpCode::try_from(22201);
         assert!(result.is_ok());
-        assert_eq!(OpCode::Add(Mode::Rel, Mode::Rel, Mode::Rel), result.unwrap());
+        assert_eq!(
+            OpCode::Add(Mode::Rel, Mode::Rel, Mode::Rel),
+            result.unwrap()
+        );
     }
 }
