@@ -4,6 +4,7 @@ use strum::IntoEnumIterator;
 
 use crate::error::AdventError;
 use crate::util::grid::{Direction, Grid};
+use crate::util::point::Point;
 
 type ParsedInput = Grid<u32>;
 
@@ -42,7 +43,7 @@ pub fn part1(map: &ParsedInput) -> color_eyre::Result<usize> {
 
 pub fn part2(map: &ParsedInput) -> color_eyre::Result<usize> {
     let successors = |node: &Node| -> Vec<(Node, usize)> {
-        let grid_loc = (node.loc.1, node.loc.0);
+        let grid_loc = (node.loc.y, node.loc.x);
 
         if node.dir_count < 4 {
             if let Some(from) = node.in_dir {
@@ -51,7 +52,7 @@ pub fn part2(map: &ParsedInput) -> color_eyre::Result<usize> {
                     next_node.in_dir = Some(from);
                     next_node.dir_count = node.dir_count + 1;
 
-                    if let Some(weight) = map.get(next_node.loc.1, next_node.loc.0) {
+                    if let Some(weight) = map.get(next_node.loc.y, next_node.loc.x) {
                         return vec![(next_node, *weight as usize)];
                     }
                 } else {
@@ -78,7 +79,7 @@ fn get_cardinal_successors(
     node: &Node,
     max_straight: usize,
 ) -> Vec<(Node, usize)> {
-    let grid_loc = (node.loc.1, node.loc.0);
+    let grid_loc = (node.loc.y, node.loc.x);
 
     Direction::iter()
         .filter_map(|direction| {
@@ -117,7 +118,7 @@ fn get_cardinal_successors(
             }
         })
         .map(|node: Node| {
-            let weight = *(map.get(node.loc.1, node.loc.0).unwrap()) as usize;
+            let weight = *(map.get(node.loc.y, node.loc.x).unwrap()) as usize;
             (node, weight)
         })
         .collect_vec()
@@ -159,7 +160,7 @@ struct Node {
 impl Node {
     fn new(x: usize, y: usize) -> Self {
         Self {
-            loc: Point(x, y),
+            loc: Point::from((x, y)),
             in_dir: None,
             dir_count: 0,
         }
@@ -173,21 +174,5 @@ impl Node {
 impl From<(usize, usize)> for Node {
     fn from(value: (usize, usize)) -> Self {
         Self::new(value.0, value.1)
-    }
-}
-
-// Move to Grid?
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
-struct Point(usize, usize);
-
-impl From<(usize, usize)> for Point {
-    fn from(value: (usize, usize)) -> Self {
-        Self(value.0, value.1)
-    }
-}
-
-impl From<Point> for (usize, usize) {
-    fn from(value: Point) -> Self {
-        (value.0, value.1)
     }
 }

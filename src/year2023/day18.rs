@@ -2,6 +2,7 @@ use itertools::Itertools;
 
 use crate::error::AdventError;
 use crate::util::grid::Direction;
+use crate::util::point::PointT;
 
 type ParsedInput = Input;
 
@@ -56,7 +57,7 @@ pub fn part2(input: &ParsedInput) -> color_eyre::Result<i64> {
 }
 
 fn solve(steps: &Vec<DigStep>) -> i64 {
-    let mut start = Point(0, 0);
+    let mut start = PointT::from((0, 0));
     let mut end;
     let mut perimeter = 0i64;
     let mut area = 0;
@@ -78,17 +79,17 @@ fn solve(steps: &Vec<DigStep>) -> i64 {
 // Shoelace Theorem
 // Area = 0.5 * |(x1*y2 - x2*y1) + (x2*y3 - x3*y2) + ... + (xn*y1 - x1*yn)|
 // Determinant = (xn*y1 - x1*yn)
-fn calc_determinant(start: &Point, end: &Point) -> i64 {
-    (start.0 * end.1) - (start.1 * end.0)
+fn calc_determinant(start: &PointT<i64>, end: &PointT<i64>) -> i64 {
+    (start.x * end.y) - (start.y * end.x)
 }
 
-fn calc_end(start: &Point, size: i64, dir: Direction) -> Point {
-    let mut end = start.clone();
+fn calc_end(start: &PointT<i64>, size: i64, dir: Direction) -> PointT<i64> {
+    let mut end = *start;
     match dir {
-        Direction::North => end.1 -= size,
-        Direction::East => end.0 += size,
-        Direction::South => end.1 += size,
-        Direction::West => end.0 -= size,
+        Direction::North => end.y -= size,
+        Direction::East => end.x += size,
+        Direction::South => end.y += size,
+        Direction::West => end.x -= size,
     };
 
     end
@@ -109,20 +110,5 @@ pub struct DigStep {
 impl DigStep {
     pub fn new(dir: Direction, size: i64) -> Self {
         Self { dir, size }
-    }
-}
-
-#[derive(Clone, Debug, Hash, PartialEq, Eq)]
-struct Point(i64, i64);
-
-impl From<(i64, i64)> for Point {
-    fn from(value: (i64, i64)) -> Self {
-        Self(value.0, value.1)
-    }
-}
-
-impl From<Point> for (i64, i64) {
-    fn from(value: Point) -> Self {
-        (value.0, value.1)
     }
 }

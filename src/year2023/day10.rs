@@ -3,7 +3,7 @@ use strum::IntoEnumIterator;
 
 use crate::{
     error::AdventError,
-    util::grid::{Direction, Grid},
+    util::{grid::{Direction, Grid}, point::Point},
 };
 
 type ParsedInput = Grid<NodeType>;
@@ -51,7 +51,7 @@ pub fn part2(grid: &ParsedInput) -> color_eyre::Result<i64> {
 // Area = 0.5 * |(x1*y2 - x2*y1) + (x2*y3 - x3*y2) + ... + (xn*y1 - x1*yn)|
 // Determinant = (xn*y1 - x1*yn)
 fn calc_determinant(start: &Point, end: &Point) -> i64 {
-    (start.0 * end.1) - (start.1 * end.0)
+    (start.x * end.y) as i64 - (start.y * end.x) as i64
 }
 
 fn get_path(grid: &ParsedInput) -> color_eyre::Result<Vec<(usize, usize)>> {
@@ -177,14 +177,6 @@ fn get_next_direction(next_type: NodeType, cur_dir: Direction) -> Option<Directi
                 None
             }
         }
-    }
-}
-
-struct Point(i64, i64);
-
-impl From<(usize, usize)> for Point {
-    fn from(value: (usize, usize)) -> Self {
-        Self(value.0 as i64, value.1 as i64)
     }
 }
 
