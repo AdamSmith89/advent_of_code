@@ -309,7 +309,7 @@ impl IntCodeComputer {
         } else if self.yield_for_input {
             // We are yielding so will need to re-run this input instruction
             self.ip -= 2;
-            Err(IntCodeError::Yield.into())
+            Err(IntCodeError::Yield)
         } else {
             Err(IntCodeError::NoInput)
         }

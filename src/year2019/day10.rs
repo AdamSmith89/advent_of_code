@@ -134,7 +134,7 @@ fn find_asteroid_with_largest_visible_set(grid: &Grid<char>) -> color_eyre::Resu
 
         asteroid_angles
             .entry(*p_one)
-            .or_insert(HashSet::new())
+            .or_default()
             .insert(angle_bits);
     }
 

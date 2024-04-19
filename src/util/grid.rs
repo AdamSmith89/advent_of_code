@@ -7,7 +7,7 @@ use std::slice::{Iter, IterMut};
 use itertools::Itertools;
 use strum_macros::{Display, EnumIter};
 
-use crate::error::AdventError;
+
 
 #[derive(Clone, Copy, Debug, Display, EnumIter, Eq, Hash, PartialEq)]
 pub enum Direction {
