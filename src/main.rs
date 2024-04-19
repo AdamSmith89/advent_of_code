@@ -24,7 +24,9 @@ fn main() -> color_eyre::eyre::Result<()> {
     let mut total_time = 0f32;
 
     if debug_enabled {
-        SimpleLogger::new().init()?;
+        SimpleLogger::new()
+            .with_level(log::LevelFilter::Debug)
+            .init()?;
     } else {
         print_header();
     }
@@ -202,6 +204,7 @@ fn year2019() -> Vec<Puzzle> {
         puzzle!(year2019, day08),
         puzzle!(year2019, day09),
         puzzle!(year2019, day10),
+        puzzle!(year2019, day11),
         // NEXT
     ]
 }

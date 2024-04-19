@@ -13,12 +13,8 @@ pub fn part1(input: &ParsedInput) -> color_eyre::Result<i64> {
     icc.push_input(1);
     icc.run()?;
 
-    let output = icc.get_output();
-
-    output
-        .last()
+    icc.next_output()
         .ok_or(AdventError::LogicError(String::from("No diagnostic output found")).into())
-        .cloned()
 }
 
 pub fn part2(input: &ParsedInput) -> color_eyre::Result<i64> {
@@ -26,10 +22,6 @@ pub fn part2(input: &ParsedInput) -> color_eyre::Result<i64> {
     icc.push_input(5);
     icc.run()?;
 
-    let output = icc.get_output();
-
-    output
-        .last()
+    icc.next_output()
         .ok_or(AdventError::LogicError(String::from("No diagnostic output found")).into())
-        .cloned()
 }

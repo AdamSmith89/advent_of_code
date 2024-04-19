@@ -7,8 +7,6 @@ use std::slice::{Iter, IterMut};
 use itertools::Itertools;
 use strum_macros::{Display, EnumIter};
 
-
-
 #[derive(Clone, Copy, Debug, Display, EnumIter, Eq, Hash, PartialEq)]
 pub enum Direction {
     North,
@@ -18,12 +16,31 @@ pub enum Direction {
 }
 
 impl Direction {
+
     pub fn is_opposite(&self, other: &Direction) -> bool {
         match self {
             Direction::North => *other == Direction::South,
             Direction::East => *other == Direction::West,
             Direction::South => *other == Direction::North,
             Direction::West => *other == Direction::East,
+        }
+    }
+
+    pub fn rotate_90_cwise(&self) -> Self {
+        match self {
+            Direction::North => Direction::East,
+            Direction::East => Direction::South,
+            Direction::South => Direction::West,
+            Direction::West => Direction::North,
+        }
+    }
+
+    pub fn rotate_90_c_cwise(&self) -> Self {
+        match self {
+            Direction::North => Direction::West,
+            Direction::East => Direction::North,
+            Direction::South => Direction::East,
+            Direction::West => Direction::South,
         }
     }
 }

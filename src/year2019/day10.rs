@@ -1,13 +1,12 @@
 use std::{
     collections::{HashMap, HashSet},
     f64::consts::PI,
-    fmt::{Debug, Display},
 };
 
 use itertools::Itertools;
 use log::{debug, info};
 
-use crate::{error::AdventError, util::grid::Grid};
+use crate::{error::AdventError, util::{grid::Grid, point::Point}};
 
 type ParsedInput = Grid<char>;
 
@@ -19,25 +18,6 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     }
 
     Ok(grid)
-}
-
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
-struct Point {
-    x: usize,
-    y: usize,
-}
-
-impl Debug for Point {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        //f.debug_struct("Point").field("x", &self.x).field("y", &self.y).finish()
-        write!(f, "[{}, {}]", self.x, self.y)
-    }
-}
-
-impl Display for Point {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "[{}, {}]", self.x, self.y)
-    }
 }
 
 pub fn part1(grid: &ParsedInput) -> color_eyre::Result<usize> {
@@ -70,7 +50,7 @@ pub fn part2(grid: &ParsedInput) -> color_eyre::Result<usize> {
 
     let asteroid_200 = 'outer: loop {
         let asteroids = find_asteroids(&grid);
-        
+
         // Map of unique angle to (asteroid and distance from origin)
         let mut visible_asteroids: HashMap<u64, (Point, u64, f64)> = HashMap::new();
         for asteroid in asteroids {

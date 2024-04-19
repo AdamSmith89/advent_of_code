@@ -9,6 +9,7 @@ mod year2019 {
     mod day08_test;
     mod day09_test;
     mod day10_test;
+    mod day11_test;
     // NEXT
 }
 

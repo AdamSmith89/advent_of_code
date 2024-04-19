@@ -114,7 +114,7 @@ pub fn part2(grid: &ParsedInput) -> color_eyre::Result<usize> {
                 let available_moves = get_cardinal_neighbours(&Point::from((row, col))).len();
 
                 if available_moves >= 3 {
-                    Some(Point(row, col))
+                    Some(Point::from((row, col)))
                 } else {
                     None
                 }

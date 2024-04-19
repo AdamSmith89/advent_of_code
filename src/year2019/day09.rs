@@ -1,8 +1,8 @@
 use crate::error::AdventError;
 
-use super::int_code_computer::{IccProgram, IntCodeComputer};
+use super::int_code_computer::{IcProgram, IntCodeComputer};
 
-type ParsedInput = IccProgram;
+type ParsedInput = IcProgram;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     IntCodeComputer::parse_program(input)

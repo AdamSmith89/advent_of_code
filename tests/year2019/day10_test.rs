@@ -1,7 +1,6 @@
 use advent_of_code::{util::grid::Grid, year2019::day10::*};
 use grid::grid;
 
-
 const PUZZLE_INPUT: &str = include_str!("../../input/year2019/day10.txt");
 const EXAMPLE_INPUT_PART1: &str = "\
 .#..#

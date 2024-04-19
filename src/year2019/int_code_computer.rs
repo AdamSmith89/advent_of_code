@@ -12,7 +12,7 @@ use crate::error::AdventError;
 
 use super::op_code::{Mode, OpCode};
 
-pub type IccProgram = Vec<i64>;
+pub type IcProgram = Vec<i64>;
 
 #[derive(Debug, Eq, PartialEq, thiserror::Error)]
 pub enum IntCodeError {
@@ -30,14 +30,15 @@ pub struct IntCodeComputer {
     rel_base: usize,
 
     input_buffer: VecDeque<i64>,
-    output_buffer: Vec<i64>,
+    output_buffer: VecDeque<i64>,
 
     yield_for_input: bool,
+    yielding: bool,
     halted: bool,
 }
 
 impl IntCodeComputer {
-    pub fn parse_program(input: &str) -> color_eyre::Result<IccProgram> {
+    pub fn parse_program(input: &str) -> color_eyre::Result<IcProgram> {
         Ok(input
             .lines()
             .next()
@@ -56,8 +57,9 @@ impl IntCodeComputer {
             ip: 0,
             rel_base: 0,
             input_buffer: VecDeque::new(),
-            output_buffer: Vec::new(),
+            output_buffer: VecDeque::new(),
             yield_for_input: false,
+            yielding: false,
             halted: false,
         }
     }
@@ -71,7 +73,9 @@ impl IntCodeComputer {
     }
 
     pub fn run(&mut self) -> color_eyre::Result<()> {
-        log::debug!("{:?}", self.memory);
+        log::trace!("{:?}", self.memory);
+
+        self.yielding = false;
         loop {
             match self.parse_instruction()? {
                 OpCode::Add(mode1, mode2, mode3) => {
@@ -79,7 +83,7 @@ impl IntCodeComputer {
                     let param2 = self.next_with_mode(mode2, AccessType::Read)?;
                     let write_addr = self.next_with_mode(mode3, AccessType::Write)? as usize;
 
-                    log::debug!("  {param1} + {param2}");
+                    log::trace!("  {param1} + {param2}");
                     self.binary_op(param1, param2, write_addr, Add::add)?
                 }
                 OpCode::Mul(mode1, mode2, mode3) => {
@@ -87,7 +91,7 @@ impl IntCodeComputer {
                     let param2 = self.next_with_mode(mode2, AccessType::Read)?;
                     let write_addr = self.next_with_mode(mode3, AccessType::Write)? as usize;
 
-                    log::debug!("  {param1} x {param2}");
+                    log::trace!("  {param1} x {param2}");
                     self.binary_op(param1, param2, write_addr, Mul::mul)?
                 }
                 OpCode::In(mode) => {
@@ -98,21 +102,21 @@ impl IntCodeComputer {
                 OpCode::Out(mode) => {
                     let value = self.next_with_mode(mode, AccessType::Read)?;
 
-                    log::debug!("  {value}");
+                    log::trace!("  {value}");
                     self.output(value)?
                 }
                 OpCode::JNZ(mode1, mode2) => {
                     let value = self.next_with_mode(mode1, AccessType::Read)?;
                     let jmp_addr = self.next_with_mode(mode2, AccessType::Read)?;
 
-                    log::debug!("  if {value} != 0 then jmp {jmp_addr}");
+                    log::trace!("  if {value} != 0 then jmp {jmp_addr}");
                     self.jmp_op(value, jmp_addr as usize, PartialEq::ne)?
                 }
                 OpCode::JZ(mode1, mode2) => {
                     let value = self.next_with_mode(mode1, AccessType::Read)?;
                     let jmp_addr = self.next_with_mode(mode2, AccessType::Read)?;
 
-                    log::debug!("  if {value} == 0 then jmp {jmp_addr}");
+                    log::trace!("  if {value} == 0 then jmp {jmp_addr}");
                     self.jmp_op(value, jmp_addr as usize, PartialEq::eq)?
                 }
                 OpCode::LT(mode1, mode2, mode3) => {
@@ -120,7 +124,7 @@ impl IntCodeComputer {
                     let param2 = self.next_with_mode(mode2, AccessType::Read)?;
                     let write_addr = self.next_with_mode(mode3, AccessType::Write)? as usize;
 
-                    log::debug!("  {param1} < {param2}");
+                    log::trace!("  {param1} < {param2}");
                     self.cmp_op(param1, param2, write_addr, PartialOrd::lt)?
                 }
                 OpCode::EQ(mode1, mode2, mode3) => {
@@ -128,13 +132,13 @@ impl IntCodeComputer {
                     let param2 = self.next_with_mode(mode2, AccessType::Read)?;
                     let write_addr = self.next_with_mode(mode3, AccessType::Write)? as usize;
 
-                    log::debug!("  {param1} == {param2}");
+                    log::trace!("  {param1} == {param2}");
                     self.cmp_op(param1, param2, write_addr, PartialEq::eq)?
                 }
                 OpCode::RBO(mode) => {
                     let param = self.next_with_mode(mode, AccessType::Read)?;
 
-                    log::debug!("  adjust rel_base by {param}");
+                    log::trace!("  adjust rel_base by {param}");
                     self.adj_rel_base(param)?
                 }
                 OpCode::End => {
@@ -151,16 +155,24 @@ impl IntCodeComputer {
         self.input_buffer.push_back(input);
     }
 
-    pub fn get_output(&self) -> &Vec<i64> {
+    pub fn get_output(&self) -> &VecDeque<i64> {
         &self.output_buffer
     }
 
     pub fn get_last_output(&self) -> Option<&i64> {
-        self.output_buffer.last()
+        self.output_buffer.back()
+    }
+
+    pub fn next_output(&mut self) -> Option<i64> {
+        self.output_buffer.pop_front()
     }
 
     pub fn has_halted(&self) -> bool {
         self.halted
+    }
+
+    pub fn is_yielding(&self) -> bool {
+        self.yielding
     }
 
     pub fn read(&self, addr: usize) -> Result<i64, IntCodeError> {
@@ -181,7 +193,7 @@ impl IntCodeComputer {
 
     fn write(&mut self, addr: usize, val: i64) -> Result<(), IntCodeError> {
         if let Some(cur_val) = self.memory.get_mut(addr) {
-            log::debug!("  Writing {val} to {addr}");
+            log::trace!("  Writing {val} to {addr}");
             *cur_val = val;
             Ok(())
         } else {
@@ -195,7 +207,7 @@ impl IntCodeComputer {
 
         let upper = self.memory.len().min(self.ip + op.num_params());
         let context = &self.memory[self.ip - 1..upper];
-        log::debug!("[{}] {op:?} ({context:?})", self.ip - 1);
+        log::trace!("[{}] {op:?} ({context:?})", self.ip - 1);
 
         Ok(op)
     }
@@ -311,6 +323,7 @@ impl IntCodeComputer {
         } else if self.yield_for_input {
             // We are yielding so will need to re-run this input instruction
             self.ip -= 2;
+            self.yielding = true;
             Err(IntCodeError::Yield)
         } else {
             Err(IntCodeError::NoInput)
@@ -322,7 +335,7 @@ impl IntCodeComputer {
         // For example, the instruction 4,50 would output the value at address 50.
 
         // Is this the best way to represent output?
-        self.output_buffer.push(value);
+        self.output_buffer.push_back(value);
 
         Ok(())
     }
@@ -348,6 +361,8 @@ enum AccessType {
 
 #[cfg(test)]
 mod icc_tests {
+    use std::collections::VecDeque;
+
     use super::IntCodeComputer;
 
     #[test]
@@ -414,7 +429,7 @@ mod icc_tests {
 
         assert!(icc.run().is_ok());
         assert_eq!(Ok(&[4, 3, 104, 8, 99][..]), icc._read_block(0, 5));
-        assert_eq!(&vec![8, 8], icc.get_output());
+        assert_eq!(&VecDeque::from([8, 8]), icc.get_output());
     }
 
     #[test]
@@ -563,7 +578,7 @@ mod icc_tests {
             Ok(&[3, 9, 8, 9, 10, 9, 4, 9, 99, 1, 8][..]),
             icc._read_block(0, 11)
         );
-        assert_eq!(&vec![1], icc.get_output());
+        assert_eq!(&VecDeque::from([1]), icc.get_output());
     }
 
     #[test]
@@ -578,7 +593,7 @@ mod icc_tests {
             Ok(&[3, 9, 7, 9, 10, 9, 4, 9, 99, 0, 8][..]),
             icc._read_block(0, 11)
         );
-        assert_eq!(&vec![0], icc.get_output());
+        assert_eq!(&VecDeque::from([0]), icc.get_output());
     }
 
     #[test]
@@ -593,7 +608,7 @@ mod icc_tests {
             Ok(&[3, 3, 1108, 0, 8, 3, 4, 3, 99][..]),
             icc._read_block(0, 9)
         );
-        assert_eq!(&vec![0], icc.get_output());
+        assert_eq!(&VecDeque::from([0]), icc.get_output());
     }
 
     #[test]
@@ -608,7 +623,7 @@ mod icc_tests {
             Ok(&[3, 3, 1107, 1, 8, 3, 4, 3, 99][..]),
             icc._read_block(0, 9)
         );
-        assert_eq!(&vec![1], icc.get_output());
+        assert_eq!(&VecDeque::from([1]), icc.get_output());
     }
 
     #[test]
@@ -625,7 +640,7 @@ mod icc_tests {
             Ok(&[3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, 0, 0, 1, 9][..]),
             icc._read_block(0, 16)
         );
-        assert_eq!(&vec![0], icc.get_output());
+        assert_eq!(&VecDeque::from([0]), icc.get_output());
     }
 
     #[test]
@@ -640,7 +655,7 @@ mod icc_tests {
             Ok(&[3, 3, 1105, 5, 9, 1101, 0, 0, 12, 4, 12, 99, 1][..]),
             icc._read_block(0, 13)
         );
-        assert_eq!(&vec![1], icc.get_output());
+        assert_eq!(&VecDeque::from([1]), icc.get_output());
     }
 
     // year2019::day05 part 2 big example
@@ -657,7 +672,7 @@ mod icc_tests {
         icc.push_input(5);
 
         assert!(icc.run().is_ok());
-        assert_eq!(&vec![999], icc.get_output());
+        assert_eq!(&VecDeque::from([999]), icc.get_output());
     }
 
     // ...
@@ -673,7 +688,7 @@ mod icc_tests {
         icc.push_input(8);
 
         assert!(icc.run().is_ok());
-        assert_eq!(&vec![1000], icc.get_output());
+        assert_eq!(&VecDeque::from([1000]), icc.get_output());
     }
 
     // ...
@@ -688,7 +703,7 @@ mod icc_tests {
         icc.push_input(15);
 
         assert!(icc.run().is_ok());
-        assert_eq!(&vec![1001], icc.get_output());
+        assert_eq!(&VecDeque::from([1001]), icc.get_output());
     }
 
     #[test]
@@ -700,7 +715,7 @@ mod icc_tests {
 
         assert!(icc.run().is_ok());
         assert_eq!(
-            &vec![109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 15, 101, 1006, 101, 0, 99,],
+            &VecDeque::from([109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 15, 101, 1006, 101, 0, 99,]),
             icc.get_output()
         );
     }
@@ -710,7 +725,7 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![1102, 34915192, 34915192, 7, 4, 7, 99, 0]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(&vec![1219070632396864], icc.get_output());
+        assert_eq!(&VecDeque::from([1219070632396864]), icc.get_output());
     }
 
     #[test]
@@ -718,6 +733,6 @@ mod icc_tests {
         let mut icc = IntCodeComputer::load(vec![104, 1125899906842624, 99]);
 
         assert!(icc.run().is_ok());
-        assert_eq!(&vec![1125899906842624], icc.get_output());
+        assert_eq!(&VecDeque::from([1125899906842624]), icc.get_output());
     }
 }
