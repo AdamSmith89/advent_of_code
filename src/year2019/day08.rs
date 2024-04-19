@@ -85,7 +85,7 @@ impl Layer {
     }
 
     fn get_pixel_at(&self, row: usize, col: usize) -> Option<&u32> {
-        let index = (row * WIDTH) + col;
+        let index = (row * self.width) + col;
 
         //println!("Getting {row}, {col} at {index}");
 
@@ -113,7 +113,8 @@ mod layer_tests {
 
     #[test]
     fn get_pixel_at_exists() {
-        let layer = Layer::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 6, 2);
+        let mut layer = Layer::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], 6, 2);
+        layer.width = 6;
         assert_eq!(Some(&1), layer.get_pixel_at(0, 0));
         assert_eq!(Some(&3), layer.get_pixel_at(0, 2));
         assert_eq!(Some(&7), layer.get_pixel_at(1, 0));
