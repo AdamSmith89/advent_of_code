@@ -1,3 +1,5 @@
+#![allow(clippy::zero_prefixed_literal)]
+
 use std::{
     collections::VecDeque,
     ops::{Add, Mul},

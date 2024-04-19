@@ -1,3 +1,5 @@
+#![allow(clippy::zero_prefixed_literal)]
+
 use crate::error::AdventError;
 
 #[derive(Debug, PartialEq)]
