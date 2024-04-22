@@ -16,12 +16,14 @@ pub type IcProgram = Vec<i64>;
 
 #[derive(Debug, Eq, PartialEq, thiserror::Error)]
 pub enum IntCodeError {
-    #[error("Yielding")]
-    Yield,
+    // #[error("Yielding")]
+    // Yield,
     #[error("Invalid memory address {0}")]
     InvalidAccess(isize),
     #[error("No input value provided")]
     NoInput,
+    #[error("Writing in immediate mode is disallowed")]
+    ImmediateWrite,
 }
 
 pub struct IntCodeComputer {
@@ -75,7 +77,9 @@ impl IntCodeComputer {
     pub fn run(&mut self) -> color_eyre::Result<()> {
         log::trace!("{:?}", self.memory);
 
+        self.halted = false;
         self.yielding = false;
+        
         loop {
             match self.parse_instruction()? {
                 OpCode::Add(mode1, mode2, mode3) => {
@@ -84,7 +88,7 @@ impl IntCodeComputer {
                     let write_addr = self.next_with_mode(mode3, AccessType::Write)? as usize;
 
                     log::trace!("  {param1} + {param2}");
-                    self.binary_op(param1, param2, write_addr, Add::add)?
+                    self.arithmetic_op(param1, param2, write_addr, Add::add)?
                 }
                 OpCode::Mul(mode1, mode2, mode3) => {
                     let param1 = self.next_with_mode(mode1, AccessType::Read)?;
@@ -92,12 +96,16 @@ impl IntCodeComputer {
                     let write_addr = self.next_with_mode(mode3, AccessType::Write)? as usize;
 
                     log::trace!("  {param1} x {param2}");
-                    self.binary_op(param1, param2, write_addr, Mul::mul)?
+                    self.arithmetic_op(param1, param2, write_addr, Mul::mul)?
                 }
                 OpCode::In(mode) => {
                     let addr = self.next_with_mode(mode, AccessType::Write)?;
 
-                    self.input(addr as usize)?
+                    self.input(addr as usize)?;
+
+                    if self.yielding {
+                        return Ok(());
+                    }
                 }
                 OpCode::Out(mode) => {
                     let value = self.next_with_mode(mode, AccessType::Read)?;
@@ -159,14 +167,14 @@ impl IntCodeComputer {
         &self.output_buffer
     }
 
-    pub fn get_last_output(&self) -> Option<&i64> {
-        self.output_buffer.back()
-    }
-
     pub fn next_output(&mut self) -> Option<i64> {
         self.output_buffer.pop_front()
     }
 
+    pub fn last_output(&self) -> Option<&i64> {
+        self.output_buffer.back()
+    }
+    
     pub fn has_halted(&self) -> bool {
         self.halted
     }
@@ -239,9 +247,7 @@ impl IntCodeComputer {
             }
             AccessType::Write => match mode {
                 Mode::Pos => self.next(),
-                Mode::Imm => {
-                    panic!("Parameters an instruction write to will never be in immediate mode")
-                }
+                Mode::Imm => Err(IntCodeError::ImmediateWrite),
                 Mode::Rel => {
                     let offset = self.next()?;
                     Ok(self.rel_base.checked_add_signed(offset as isize).ok_or(
@@ -252,7 +258,7 @@ impl IntCodeComputer {
         }
     }
 
-    fn binary_op<Op>(
+    fn arithmetic_op<Op>(
         &mut self,
         param1: i64,
         param2: i64,
@@ -324,7 +330,8 @@ impl IntCodeComputer {
             // We are yielding so will need to re-run this input instruction
             self.ip -= 2;
             self.yielding = true;
-            Err(IntCodeError::Yield)
+            Ok(())
+            //Err(IntCodeError::Yield)
         } else {
             Err(IntCodeError::NoInput)
         }
@@ -715,7 +722,9 @@ mod icc_tests {
 
         assert!(icc.run().is_ok());
         assert_eq!(
-            &VecDeque::from([109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 15, 101, 1006, 101, 0, 99,]),
+            &VecDeque::from([
+                109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 15, 101, 1006, 101, 0, 99,
+            ]),
             icc.get_output()
         );
     }

@@ -34,19 +34,16 @@ pub fn part1(code: &ParsedInput) -> color_eyre::Result<usize> {
     icc.enable_input_yield();
 
     while !icc.has_halted() {
-        let icc_status = icc.run();
-        if !icc.is_yielding() {
-            if let Err(report) = icc_status {
-                return Err(report.wrap_err("ICC failed unexpectedly"));
+        icc.run()?;
+
+        if icc.is_yielding() {
+            if paint_panel(&mut icc, &mut panels, cur_pos)? {
+                painted_panels.insert(cur_pos);
             }
-        }
 
-        if paint_panel(&mut icc, &mut panels, cur_pos)? {
-            painted_panels.insert(cur_pos);
+            move_robot(&mut icc, &mut cur_dir, &mut cur_pos, &mut panels);
+            input_panel_to_robot(&cur_pos, &mut panels, &mut icc)?;
         }
-
-        move_robot(&mut icc, &mut cur_dir, &mut cur_pos, &mut panels);
-        input_panel_to_robot(&cur_pos, &mut panels, &mut icc)?;
 
         debug!("");
     }
@@ -66,16 +63,13 @@ pub fn part2(code: &ParsedInput) -> color_eyre::Result<&str> {
     icc.enable_input_yield();
 
     while !icc.has_halted() {
-        let icc_status = icc.run();
-        if !icc.is_yielding() {
-            if let Err(report) = icc_status {
-                return Err(report.wrap_err("ICC failed unexpectedly"));
-            }
-        }
+        icc.run()?;
 
-        paint_panel(&mut icc, &mut panels, cur_pos)?;
-        move_robot(&mut icc, &mut cur_dir, &mut cur_pos, &mut panels);
-        input_panel_to_robot(&cur_pos, &mut panels, &mut icc)?;
+        if icc.is_yielding() {
+            paint_panel(&mut icc, &mut panels, cur_pos)?;
+            move_robot(&mut icc, &mut cur_dir, &mut cur_pos, &mut panels);
+            input_panel_to_robot(&cur_pos, &mut panels, &mut icc)?;
+        }
 
         debug!("");
     }

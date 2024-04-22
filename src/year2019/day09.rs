@@ -13,7 +13,7 @@ pub fn part1(code: &ParsedInput) -> color_eyre::Result<i64> {
     icc.push_input(1);
     icc.run()?;
     Ok(icc
-        .get_last_output()
+        .last_output()
         .ok_or(AdventError::LogicError(String::from("No output from icc")))
         .cloned()?)
 }
@@ -23,7 +23,7 @@ pub fn part2(code: &ParsedInput) -> color_eyre::Result<i64> {
     icc.push_input(2);
     icc.run()?;
     Ok(icc
-        .get_last_output()
+        .last_output()
         .ok_or(AdventError::LogicError(String::from("No output from icc")))
         .cloned()?)
 }

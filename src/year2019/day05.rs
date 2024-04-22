@@ -1,8 +1,8 @@
 use crate::error::AdventError;
 
-use super::int_code_computer::IntCodeComputer;
+use super::int_code_computer::{IcProgram, IntCodeComputer};
 
-type ParsedInput = Vec<i64>;
+type ParsedInput = IcProgram;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
     IntCodeComputer::parse_program(input)
@@ -13,8 +13,9 @@ pub fn part1(input: &ParsedInput) -> color_eyre::Result<i64> {
     icc.push_input(1);
     icc.run()?;
 
-    icc.next_output()
+    icc.last_output()
         .ok_or(AdventError::LogicError(String::from("No diagnostic output found")).into())
+        .cloned()
 }
 
 pub fn part2(input: &ParsedInput) -> color_eyre::Result<i64> {
@@ -22,6 +23,7 @@ pub fn part2(input: &ParsedInput) -> color_eyre::Result<i64> {
     icc.push_input(5);
     icc.run()?;
 
-    icc.next_output()
+    icc.last_output()
         .ok_or(AdventError::LogicError(String::from("No diagnostic output found")).into())
+        .cloned()
 }
