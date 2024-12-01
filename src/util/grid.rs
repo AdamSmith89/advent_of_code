@@ -16,7 +16,6 @@ pub enum Direction {
 }
 
 impl Direction {
-
     pub fn is_opposite(&self, other: &Direction) -> bool {
         match self {
             Direction::North => *other == Direction::South,

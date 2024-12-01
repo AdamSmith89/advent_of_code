@@ -79,7 +79,7 @@ impl IntCodeComputer {
 
         self.halted = false;
         self.yielding = false;
-        
+
         loop {
             match self.parse_instruction()? {
                 OpCode::Add(mode1, mode2, mode3) => {
@@ -174,7 +174,7 @@ impl IntCodeComputer {
     pub fn last_output(&self) -> Option<&i64> {
         self.output_buffer.back()
     }
-    
+
     pub fn has_halted(&self) -> bool {
         self.halted
     }

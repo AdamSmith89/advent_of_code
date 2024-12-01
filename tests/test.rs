@@ -10,7 +10,6 @@ mod year2019 {
     mod day09_test;
     mod day10_test;
     mod day11_test;
-    // NEXT
 }
 
 mod year2023 {
@@ -37,4 +36,9 @@ mod year2023 {
     mod day21_test;
     mod day22_test;
     mod day23_test;
+}
+
+mod year2024 {
+    mod day01_test;
+    // NEXT
 }

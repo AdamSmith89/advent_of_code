@@ -6,7 +6,10 @@ use std::{
 use itertools::Itertools;
 use log::{debug, info};
 
-use crate::{error::AdventError, util::{grid::Grid, point::Point}};
+use crate::{
+    error::AdventError,
+    util::{grid::Grid, point::Point},
+};
 
 type ParsedInput = Grid<char>;
 
