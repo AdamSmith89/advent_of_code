@@ -6,23 +6,23 @@ const EXAMPLE_INPUT: &str = "\
 
 #[test]
 fn parse_example() {
-    let _parsed = parse(EXAMPLE_INPUT).expect("Error parsing input");
+    let _actual = parse(EXAMPLE_INPUT).expect("Error parsing input");
 
-    //assert_eq!(expected, parsed);
+    //assert_eq!(expected, actual);
 }
 
 #[test]
 fn part1_example() {
     let input = parse(EXAMPLE_INPUT).expect("Error parsing input");
-    let _answer = part1(&input).expect("Error solving part 1");
+    let _actual = part1(&input).expect("Error solving part 1");
 
-    //assert_eq!(expected, answer);
+    //assert_eq!(expected, actual);
 }
 
 #[test]
 fn part1_real() {
     let parsed = parse(PUZZLE_INPUT).expect("Error parsing input");
-    let _answer = part1(&parsed).expect("Error solving part 1");
+    let _actual = part1(&parsed).expect("Error solving part 1");
 
     //assert_eq!(expected, actual);
 }
@@ -30,7 +30,7 @@ fn part1_real() {
 #[test]
 fn part2_example() {
     let input = parse(EXAMPLE_INPUT).expect("Error parsing example input");
-    let _answer = part2(&input).expect("Error solving part 2");
+    let _actual = part2(&input).expect("Error solving part 2");
 
     //assert_eq!(expected, actual);
 }
@@ -38,7 +38,7 @@ fn part2_example() {
 #[test]
 fn part2_real() {
     let parsed = parse(PUZZLE_INPUT).expect("Error parsing input");
-    let _answer = part2(&parsed).expect("Error solving part 2");
+    let _actual = part2(&parsed).expect("Error solving part 2");
 
     //assert_eq!(expected, actual);
 }
