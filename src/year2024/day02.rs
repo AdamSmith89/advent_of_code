@@ -1,6 +1,5 @@
 use itertools::Itertools;
 
-use crate::error::AdventError;
 
 type ParsedInput = Vec<Vec<u32>>;
 
@@ -49,6 +48,6 @@ fn is_report_safe(report: &&Vec<u32>) -> bool {
     (report.is_sorted() || report.iter().rev().is_sorted())
         && report.iter().tuple_windows().all(|(lhs, rhs)| {
             let diff = lhs.abs_diff(*rhs);
-            diff >= 1 && diff <= 3
+            (1..=3).contains(&diff)
         })
 }
