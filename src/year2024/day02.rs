@@ -1,6 +1,5 @@
 use itertools::Itertools;
 
-
 type ParsedInput = Vec<Vec<u32>>;
 
 pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
