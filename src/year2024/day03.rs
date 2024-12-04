@@ -40,7 +40,7 @@ pub fn part2(memory: &ParsedInput) -> color_eyre::Result<u32> {
         instructions.push((m.start(), m.as_str()));
     }
 
-    instructions.sort_by(|(lhs, _), (rhs, _)| lhs.cmp(&rhs));
+    instructions.sort_by(|(lhs, _), (rhs, _)| lhs.cmp(rhs));
 
     let mut result = 0;
     let mut enabled = true;
