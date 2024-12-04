@@ -44,6 +44,59 @@ impl Direction {
     }
 }
 
+#[derive(Clone, Copy, Debug, Display, EnumIter, Eq, Hash, PartialEq)]
+pub enum DirectionEx {
+    North,
+    NorthEast,
+    East,
+    SouthEast,
+    South,
+    SouthWest,
+    West,
+    NorthWest,
+}
+
+impl DirectionEx {    
+    pub fn opposite(&self) -> DirectionEx {
+        match *self {
+            DirectionEx::North => DirectionEx::South,
+            DirectionEx::NorthEast => DirectionEx::SouthWest,
+            DirectionEx::East => DirectionEx::West,
+            DirectionEx::SouthEast => DirectionEx::NorthWest,
+            DirectionEx::South => DirectionEx::North,
+            DirectionEx::SouthWest => DirectionEx::NorthEast,
+            DirectionEx::West => DirectionEx::East,
+            DirectionEx::NorthWest => DirectionEx::SouthEast,
+        }
+    }
+
+    pub fn rotate_90_cwise(&self) -> Self {
+        match self {
+            DirectionEx::North => DirectionEx::East,
+            DirectionEx::NorthEast => DirectionEx::SouthEast,
+            DirectionEx::East => DirectionEx::South,
+            DirectionEx::SouthEast => DirectionEx::SouthWest,
+            DirectionEx::South => DirectionEx::West,
+            DirectionEx::SouthWest => DirectionEx::NorthWest,
+            DirectionEx::West => DirectionEx::North,
+            DirectionEx::NorthWest => DirectionEx::NorthEast,
+        }
+    }
+
+    pub fn rotate_90_c_cwise(&self) -> Self {
+        match self {
+            DirectionEx::North => DirectionEx::West,
+            DirectionEx::NorthEast => DirectionEx::NorthWest,
+            DirectionEx::East => DirectionEx::North,
+            DirectionEx::SouthEast => DirectionEx::NorthEast,
+            DirectionEx::South => DirectionEx::East,
+            DirectionEx::SouthWest => DirectionEx::SouthEast,
+            DirectionEx::West => DirectionEx::South,
+            DirectionEx::NorthWest => DirectionEx::SouthWest,
+        }
+    }
+}
+
 // Wrapper around grid::Grid that provides extended functionality
 #[derive(Clone, Eq, PartialEq)]
 pub struct Grid<T: std::cmp::Eq> {
@@ -84,6 +137,14 @@ where
         }
     }
 
+    pub fn get_in_direction_ex(&self, point: (usize, usize), direction: DirectionEx) -> Option<&T> {
+        if let Some((_, out)) = self.get_in_direction_ex_indexed(point, direction) {
+            Some(out)
+        } else {
+            None
+        }
+    }
+
     pub fn get_in_direction_indexed(
         &self,
         point: (usize, usize),
@@ -99,6 +160,25 @@ where
         point.map(|point| (point, self.get(point.0, point.1).unwrap()))
     }
 
+    pub fn get_in_direction_ex_indexed(
+        &self,
+        point: (usize, usize),
+        direction: DirectionEx,
+    ) -> Option<((usize, usize), &T)> {
+        let point = match direction {
+            DirectionEx::North => self.north_of(point),
+            DirectionEx::NorthEast => self.north_east_of(point),
+            DirectionEx::East => self.east_of(point),
+            DirectionEx::SouthEast => self.south_east_of(point),
+            DirectionEx::South => self.south_of(point),
+            DirectionEx::SouthWest => self.south_west_of(point),
+            DirectionEx::West => self.west_of(point),
+            DirectionEx::NorthWest => self.north_west_of(point),
+        };
+
+        point.map(|point| (point, self.get(point.0, point.1).unwrap()))
+    }
+
     //pub fn is_direction_in_bounds
 
     pub fn is_in_bounds(&self, point: (usize, usize)) -> bool {
@@ -109,12 +189,20 @@ where
         point.0.checked_sub(1).map(|new_row| (new_row, point.1))
     }
 
+    pub fn north_east_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
+        self.north_of(point).and_then(|point| self.east_of(point))
+    }
+
     pub fn east_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
         if point.1 < (self.inner.cols() - 1) {
             Some((point.0, point.1 + 1))
         } else {
             None
         }
+    }
+
+    pub fn south_east_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
+        self.south_of(point).and_then(|point| self.east_of(point))
     }
 
     pub fn south_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
@@ -125,8 +213,16 @@ where
         }
     }
 
+    pub fn south_west_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
+        self.south_of(point).and_then(|point| self.west_of(point))
+    }
+
     pub fn west_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
         point.1.checked_sub(1).map(|new_col| (point.0, new_col))
+    }
+
+    pub fn north_west_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
+        self.north_of(point).and_then(|point| self.west_of(point))
     }
 }
 
