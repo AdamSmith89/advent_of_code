@@ -13,7 +13,7 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
 
 pub fn part1(map: &ParsedInput) -> color_eyre::Result<usize> {
     let visited = find_distinct_path(map)?;
-    Ok(visited.iter().count())
+    Ok(visited.len())
 }
 
 pub fn part2(map: &ParsedInput) -> color_eyre::Result<u32> {

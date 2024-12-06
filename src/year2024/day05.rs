@@ -2,7 +2,6 @@ use std::{collections::HashMap, num::ParseIntError};
 
 use itertools::Itertools;
 use log::debug;
-use num::Integer;
 
 use crate::error::AdventError;
 
