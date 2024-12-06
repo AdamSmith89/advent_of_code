@@ -56,7 +56,7 @@ pub enum DirectionEx {
     NorthWest,
 }
 
-impl DirectionEx {    
+impl DirectionEx {
     pub fn opposite(&self) -> DirectionEx {
         match *self {
             DirectionEx::North => DirectionEx::South,

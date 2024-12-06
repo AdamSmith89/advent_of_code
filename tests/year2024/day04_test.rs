@@ -16,7 +16,7 @@ MXMXAXMASX";
 #[test]
 fn parse_example() {
     let actual = parse(EXAMPLE_INPUT).expect("Error parsing input");
-    
+
     assert_eq!(Some(&'M'), actual.get(0, 0));
     assert_eq!(Some(&'M'), actual.get(3, 8));
     assert_eq!(Some(&'S'), actual.get(6, 4));
