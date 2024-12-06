@@ -44,5 +44,6 @@ mod year2024 {
     mod day03_test;
     mod day04_test;
     mod day05_test;
+    mod day06_test;
     // NEXT
 }
