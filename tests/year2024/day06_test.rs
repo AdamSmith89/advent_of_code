@@ -50,7 +50,7 @@ fn part2_example() {
 #[test]
 fn part2_real() {
     let parsed = parse(PUZZLE_INPUT).expect("Error parsing input");
-    let _actual = part2(&parsed).expect("Error solving part 2");
+    let actual = part2(&parsed).expect("Error solving part 2");
 
-    //assert_eq!(expected, actual);
+    assert_eq!(2008, actual);
 }
