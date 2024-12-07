@@ -3,7 +3,8 @@ use pathfinding::directed::dijkstra::*;
 use strum::IntoEnumIterator;
 
 use crate::error::AdventError;
-use crate::util::grid::{Direction, Grid};
+use crate::util::direction::Direction;
+use crate::util::grid::Grid;
 use crate::util::point::Point;
 
 type ParsedInput = Grid<u32>;

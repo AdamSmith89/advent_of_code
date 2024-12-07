@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 use crate::error::AdventError;
-use crate::util::grid::Direction;
+use crate::util::direction::Direction;
 use crate::util::point::PointT;
 
 type ParsedInput = Input;

@@ -1,6 +1,7 @@
 pub mod error;
 
 pub mod util {
+    pub mod direction;
     pub mod grid;
     pub mod point;
 }

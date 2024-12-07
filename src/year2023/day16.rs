@@ -1,10 +1,8 @@
 use std::collections::HashMap;
 
 use crate::error::AdventError;
-use crate::util::grid::{
-    Direction::{self, *},
-    Grid,
-};
+use crate::util::direction::Direction::{self, *};
+use crate::util::grid::Grid;
 
 type ParsedInput = Grid<char>;
 

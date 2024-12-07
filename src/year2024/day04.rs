@@ -1,6 +1,6 @@
 use strum::IntoEnumIterator;
 
-use crate::util::grid::{DirectionEx, Grid};
+use crate::util::{direction::DirectionEx, grid::Grid};
 
 type ParsedInput = Grid<char>;
 

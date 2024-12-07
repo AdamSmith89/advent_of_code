@@ -7,7 +7,8 @@ use std::{
 use crate::{
     error::AdventError,
     util::{
-        grid::{Direction, Grid},
+        direction::Direction,
+        grid::Grid,
         point::PointT,
     },
 };
