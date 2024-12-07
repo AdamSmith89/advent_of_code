@@ -371,18 +371,6 @@ impl<T: Display + std::cmp::Eq> Debug for Grid<T> {
     }
 }
 
-// impl<T: Default + From<char> + std::cmp::Eq> From<&str> for Grid<T> {
-//     fn from(s: &str) -> Self {
-//         let mut inner = grid::Grid::new(0, 0);
-
-//         for line in s.lines() {
-//             inner.push_row(line.chars().map_into().collect());
-//         }
-
-//         Self { inner }
-//     }
-// }
-
 impl<T: Default + TryFrom<char> + std::cmp::Eq> TryFrom<&str> for Grid<T> {
     type Error = T::Error;
 
@@ -400,19 +388,6 @@ impl<T: Default + TryFrom<char> + std::cmp::Eq> TryFrom<&str> for Grid<T> {
     }
 }
 
-// impl TryFrom<&str> for Grid<u32> {
-//     type Error = std::num::ParseIntError;
-
-//     fn try_from(value: &str) -> Result<Self, Self::Error> {
-//         let mut inner = grid::Grid::new(0, 0);
-
-//         for line in value.lines() {
-//             inner.push_row(line.chars().map(|ch| ch.parse::<u32>()).try_collect()?);
-//         }
-
-//         Ok(Self { inner })
-//     }
-// }
 
 impl<T: std::cmp::Eq> From<grid::Grid<T>> for Grid<T> {
     fn from(value: grid::Grid<T>) -> Self {
