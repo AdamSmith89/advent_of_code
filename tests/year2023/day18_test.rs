@@ -1,4 +1,4 @@
-use advent_of_code::util::grid::Direction;
+use advent_of_code::util::direction::Direction;
 use advent_of_code::year2023::day18::*;
 
 const PUZZLE_INPUT: &str = include_str!("../../input/year2023/day18.txt");

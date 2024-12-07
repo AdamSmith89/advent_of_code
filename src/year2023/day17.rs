@@ -87,7 +87,7 @@ fn get_cardinal_successors(
             if let Some((next_point, _)) = map.get_in_direction_indexed(grid_loc, direction) {
                 if let Some(from) = node.in_dir {
                     // Are we reversing direction?
-                    if from.is_opposite(&direction) {
+                    if from.is_opposite_of(&direction) {
                         None
                     } else {
                         let mut next_node = Node::from((next_point.1, next_point.0));

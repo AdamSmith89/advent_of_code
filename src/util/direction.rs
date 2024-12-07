@@ -9,12 +9,21 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn is_opposite(&self, other: &Direction) -> bool {
+    pub fn is_opposite_of(&self, other: &Direction) -> bool {
         match self {
             Direction::North => *other == Direction::South,
             Direction::East => *other == Direction::West,
             Direction::South => *other == Direction::North,
             Direction::West => *other == Direction::East,
+        }
+    }
+
+    pub fn get_opposite(&self) -> Direction {
+        match self {
+            Direction::North => Direction::South,
+            Direction::East => Direction::West,
+            Direction::South => Direction::North,
+            Direction::West => Direction::East,
         }
     }
 
@@ -50,7 +59,20 @@ pub enum DirectionEx {
 }
 
 impl DirectionEx {
-    pub fn opposite(&self) -> DirectionEx {
+    pub fn is_opposite_of(&self, other: &DirectionEx) -> bool {
+        match self {
+            DirectionEx::North => *other == DirectionEx::South,
+            DirectionEx::NorthEast => *other == DirectionEx::SouthWest,
+            DirectionEx::East => *other == DirectionEx::West,
+            DirectionEx::SouthEast => *other == DirectionEx::NorthWest,
+            DirectionEx::South => *other == DirectionEx::North,
+            DirectionEx::SouthWest => *other == DirectionEx::NorthEast,
+            DirectionEx::West => *other == DirectionEx::East,
+            DirectionEx::NorthWest => *other == DirectionEx::SouthEast,
+        }
+    }
+    
+    pub fn get_opposite(&self) -> DirectionEx {
         match *self {
             DirectionEx::North => DirectionEx::South,
             DirectionEx::NorthEast => DirectionEx::SouthWest,

@@ -184,7 +184,7 @@ pub fn find_paths(
             let &(cur_pos, cur_dir) = path.last().unwrap(); // Handle better
 
             // Don't go back on ourselves
-            if next_dir.is_opposite(&cur_dir) {
+            if next_dir.is_opposite_of(&cur_dir) {
                 continue;
             }
 

@@ -1,3 +1,7 @@
+mod util {
+    mod direction_test;
+}
+
 mod year2019 {
     mod day01_test;
     mod day02_test;

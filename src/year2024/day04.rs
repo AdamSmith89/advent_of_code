@@ -80,7 +80,7 @@ fn is_mas(a_loc: (usize, usize), dir: DirectionEx, wordsearch: &ParsedInput) -> 
         .is_some_and(|(_m_loc, m)| {
             *m == 'M'
                 && wordsearch
-                    .get_in_direction_ex_indexed(a_loc, dir.opposite())
+                    .get_in_direction_ex_indexed(a_loc, dir.get_opposite())
                     .is_some_and(|(_s_loc, s)| *s == 'S')
         })
 }
