@@ -10,7 +10,7 @@ pub enum AdventError {
     NotFound(String),
     #[error("Failed to parse int: {0}")]
     ParseInt(ParseIntError),
-    #[error("Failed to convert digit")]
+    #[error("Failed to convert {0} to digit")]
     ParseDigit(char),
     #[error("Failed to split {0} at {1}")]
     SplitOnce(String, String),
