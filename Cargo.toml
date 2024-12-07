@@ -6,20 +6,20 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "4.4.8", features = ["derive"] }
-color-eyre = "0.6.2"
+clap = { version = "4.5.23", features = ["derive"] }
+color-eyre = "0.6.3"
 colored = "2.1.0"
-grid = "0.12.0"
-itertools = "0.12.0"
-log = "0.4.21"
-num = "0.4.1"
-pathfinding = "4.6.0"
+grid = "0.15.0"
+itertools = "0.13.0"
+log = "0.4.22"
+num = "0.4.3"
+pathfinding = "4.11.0"
 regex = "1.11.1"
-strum = { version = "0.25.0", features = ["derive"] }
-strum_macros = "0.25.3"
-thiserror = "1.0.50"
+strum = { version = "0.26.3", features = ["derive"] }
+strum_macros = "0.26.4"
+thiserror = "2.0.4"
 
 [dependencies.simple_logger]
-version = "4.3.3"
+version = "5.0.0"
 default-features = false
 features = ["colors"]

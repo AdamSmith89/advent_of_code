@@ -102,7 +102,7 @@ pub fn part2(grid: &ParsedInput) -> color_eyre::Result<usize> {
 
 fn get_groups_with_rocks<'a>(iter: impl Iterator<Item = &'a char>) -> Vec<Vec<(usize, &'a char)>> {
     iter.enumerate()
-        .group_by(|(_, &ch)| ch != '#')
+        .chunk_by(|(_, &ch)| ch != '#')
         .into_iter()
         .filter_map(|(key, group)| {
             if key {
