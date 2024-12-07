@@ -8,7 +8,7 @@ pub enum AdventError {
     EndOfIterator,
     #[error("{0} not found")]
     NotFound(String),
-    #[error("Failed to parse int")]
+    #[error("Failed to parse int: {0}")]
     ParseInt(ParseIntError),
     #[error("Failed to convert digit")]
     ParseDigit(char),
