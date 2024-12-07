@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use advent_of_code::year2024::day05::*;
 
 const PUZZLE_INPUT: &str = include_str!("../../input/year2024/day05.txt");

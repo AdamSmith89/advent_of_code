@@ -126,8 +126,8 @@ pub fn part2((rules, updates): &ParsedInput) -> color_eyre::Result<u32> {
     Ok(mid_total)
 }
 
-fn rebuild_update(pages: &Vec<u32>, rules: &HashMap<u32, Vec<Order>>) -> Vec<u32> {
-    let mut new = pages.clone();
+fn rebuild_update(pages: &[u32], rules: &HashMap<u32, Vec<Order>>) -> Vec<u32> {
+    let mut new = pages.to_owned();
 
     new.sort_by(|lhs, rhs| {
         if let Some(page_rules) = rules.get(lhs) {
