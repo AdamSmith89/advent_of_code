@@ -388,7 +388,6 @@ impl<T: Default + TryFrom<char> + std::cmp::Eq> TryFrom<&str> for Grid<T> {
     }
 }
 
-
 impl<T: std::cmp::Eq> From<grid::Grid<T>> for Grid<T> {
     fn from(value: grid::Grid<T>) -> Self {
         Self { inner: value }

@@ -71,7 +71,7 @@ impl DirectionEx {
             DirectionEx::NorthWest => *other == DirectionEx::SouthEast,
         }
     }
-    
+
     pub fn get_opposite(&self) -> DirectionEx {
         match *self {
             DirectionEx::North => DirectionEx::South,

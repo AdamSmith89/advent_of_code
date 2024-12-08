@@ -6,11 +6,7 @@ use std::{
 
 use crate::{
     error::AdventError,
-    util::{
-        direction::Direction,
-        grid::Grid,
-        point::PointT,
-    },
+    util::{direction::Direction, grid::Grid, point::PointT},
 };
 
 use super::int_code_computer::{IcProgram, IntCodeComputer};

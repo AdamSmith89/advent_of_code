@@ -1,6 +1,9 @@
 use std::collections::HashSet;
 
-use crate::{error::AdventError, util::{direction::Direction, grid::Grid}};
+use crate::{
+    error::AdventError,
+    util::{direction::Direction, grid::Grid},
+};
 
 type ParsedInput = Grid<char>;
 

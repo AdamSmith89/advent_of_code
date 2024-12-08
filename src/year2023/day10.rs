@@ -3,11 +3,7 @@ use strum::IntoEnumIterator;
 
 use crate::{
     error::AdventError,
-    util::{
-        direction::Direction,
-        grid::Grid,
-        point::Point,
-    },
+    util::{direction::Direction, grid::Grid, point::Point},
 };
 
 type ParsedInput = Grid<NodeType>;
