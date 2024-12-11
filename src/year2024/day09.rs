@@ -85,40 +85,44 @@ pub fn part1(disk_map: &ParsedInput) -> color_eyre::Result<u128> {
 
             let end_file_size = end_file_rem.unwrap_or(end_file.size);
 
-            if end_file_size == space_size {
-                let new_file = File {
-                    id: end_file.id,
-                    size: end_file_size,
-                };
-                new_disk_map.push(new_file);
-                end_file_rem = None;
-                end_opt = rev_iter.next();
-                space_filled += end_file_size;
+            match end_file_size.cmp(&space_size) {
+                std::cmp::Ordering::Less => {
+                    let new_file = File {
+                        id: end_file.id,
+                        size: end_file_size,
+                    };
+                    new_disk_map.push(new_file);
+                    end_file_rem = None;
+                    end_opt = rev_iter.next();
+                    space_filled += end_file_size;
 
-                break;
-            } else if end_file_size < space_size {
-                let new_file = File {
-                    id: end_file.id,
-                    size: end_file_size,
-                };
-                new_disk_map.push(new_file);
-                end_file_rem = None;
-                end_opt = rev_iter.next();
-                space_filled += end_file_size;
+                    space_size -= end_file_size;
+                }
+                std::cmp::Ordering::Equal => {
+                    let new_file = File {
+                        id: end_file.id,
+                        size: end_file_size,
+                    };
+                    new_disk_map.push(new_file);
+                    end_file_rem = None;
+                    end_opt = rev_iter.next();
+                    space_filled += end_file_size;
 
-                space_size -= end_file_size;
-            } else if end_file_size > space_size {
-                let new_file = File {
-                    id: end_file.id,
-                    size: space_size,
-                };
-                new_disk_map.push(new_file);
-                end_file_rem = Some(end_file_size - space_size);
+                    break;
+                }
+                std::cmp::Ordering::Greater => {
+                    let new_file = File {
+                        id: end_file.id,
+                        size: space_size,
+                    };
+                    new_disk_map.push(new_file);
+                    end_file_rem = Some(end_file_size - space_size);
 
-                space_filled += space_size;
+                    space_filled += space_size;
 
-                break;
-            }
+                    break;
+                }
+            };
         }
 
         if space_filled >= space_to_fill {

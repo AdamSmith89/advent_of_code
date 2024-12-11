@@ -1,4 +1,4 @@
-use std::collections::{vec_deque, HashSet, VecDeque};
+use std::collections::{HashSet, VecDeque};
 
 use itertools::Itertools;
 use strum::IntoEnumIterator;
@@ -45,7 +45,7 @@ pub fn part1(map: &ParsedInput) -> color_eyre::Result<usize> {
                 continue;
             }
 
-            let mut next_height = cur_height + 1;
+            let next_height = cur_height + 1;
 
             for dir in Direction::iter() {
                 if let Some(next_step) = map
@@ -78,7 +78,7 @@ pub fn part2(map: &ParsedInput) -> color_eyre::Result<u32> {
                 continue;
             }
 
-            let mut next_height = cur_height + 1;
+            let next_height = cur_height + 1;
 
             for dir in Direction::iter() {
                 if let Some(next_step) = map
