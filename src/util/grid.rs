@@ -5,6 +5,7 @@ use std::ops::{Index, IndexMut};
 use std::slice::{Iter, IterMut};
 
 use itertools::Itertools;
+use strum::IntoEnumIterator;
 
 use super::direction::{Direction, DirectionEx};
 
@@ -132,6 +133,24 @@ where
 
     pub fn north_west_of(&self, point: (usize, usize)) -> Option<(usize, usize)> {
         self.north_of(point).and_then(|point| self.west_of(point))
+    }
+
+    pub fn get_neighbours_of_indexed(
+        &self,
+        point: (usize, usize),
+    ) -> Vec<(Direction, Option<((usize, usize), &T)>)> {
+        Direction::iter()
+            .map(|direction| (direction, self.get_in_direction_indexed(point, direction)))
+            .collect_vec()
+    }
+
+    pub fn get_neighbours_of_ex_indexed(
+        &self,
+        point: (usize, usize),
+    ) -> Vec<Option<((usize, usize), &T)>> {
+        DirectionEx::iter()
+            .map(|direction| self.get_in_direction_ex_indexed(point, direction))
+            .collect_vec()
     }
 }
 
