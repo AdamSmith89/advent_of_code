@@ -59,12 +59,7 @@ fn build_regions(map: &Grid<char>) -> Vec<Region> {
     regions
 }
 
-fn flood_fill(
-    map: &Grid<char>,
-    start_loc: (usize, usize),
-    plant: char,
-    region: &mut Region,
-) {
+fn flood_fill(map: &Grid<char>, start_loc: (usize, usize), plant: char, region: &mut Region) {
     let mut borders: Vec<(usize, Direction)> = Vec::new();
     let mut this_loc_peri = 4;
 
