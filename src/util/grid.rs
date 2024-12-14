@@ -15,15 +15,10 @@ pub struct Grid<T: std::cmp::Eq> {
     inner: grid::Grid<T>,
 }
 
-// Extension methods
 impl<T> Grid<T>
 where
     T: Copy + Default + std::cmp::Eq + TryFrom<char>,
 {
-    pub fn enum_row(&self, row: usize) -> Enumerate<StepBy<Iter<'_, T>>> {
-        self.inner.iter_row(row).enumerate()
-    }
-
     pub fn from_str_with_order(s: &str, order: grid::Order) -> Result<Self, T::Error> {
         let mut inner = grid::Grid::new_with_order(0, 0, order);
 
@@ -32,6 +27,16 @@ where
         }
 
         Ok(Self { inner })
+    }
+}
+
+// Extension methods
+impl<T> Grid<T>
+where
+    T: Copy + Default + std::cmp::Eq,
+{
+    pub fn enum_row(&self, row: usize) -> Enumerate<StepBy<Iter<'_, T>>> {
+        self.inner.iter_row(row).enumerate()
     }
 
     pub fn swap(&mut self, x: (usize, usize), y: (usize, usize)) -> color_eyre::Result<()> {
