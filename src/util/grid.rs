@@ -77,6 +77,21 @@ where
         point.map(|point| (point, self.get(point.0, point.1).unwrap()))
     }
 
+    pub fn get_in_direction_indexed_mut(
+        &mut self,
+        point: (usize, usize),
+        direction: Direction,
+    ) -> Option<((usize, usize), &mut T)> {
+        let point = match direction {
+            Direction::North => self.north_of(point),
+            Direction::East => self.east_of(point),
+            Direction::South => self.south_of(point),
+            Direction::West => self.west_of(point),
+        };
+
+        point.map(|point| (point, self.get_mut(point.0, point.1).unwrap()))
+    }
+
     pub fn get_in_direction_ex_indexed(
         &self,
         point: (usize, usize),
