@@ -110,7 +110,7 @@ fn parse_example_2() {
     assert_eq!(Some(&'O'), map.get(1, 3));
     assert_eq!(Some(&'@'), map.get(4, 4));
     assert_eq!(Some(&'#'), map.get(9, 9));
-    
+
     // 73 is enough to get onto the 2nd line
     assert_eq!(
         vec![
