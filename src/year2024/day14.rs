@@ -80,7 +80,7 @@ pub fn part2((guards, width, height): &ParsedInput) -> color_eyre::Result<u32> {
         'guard: for guard in &guards {
             // If a guard is completely surrounded by other guards then we've hit
             // the christmas tree shape
-            
+
             for direction in DirectionEx::iter() {
                 let point = (guard.pos.y as usize, guard.pos.x as usize);
                 if grid
