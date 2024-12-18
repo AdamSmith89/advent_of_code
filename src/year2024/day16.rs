@@ -18,7 +18,7 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
 pub fn part1(map: &ParsedInput) -> color_eyre::Result<usize> {
     // Runs in about 5 mins...
     Ok(134588)
-    
+
     // let ((row, col), _) = map
     //     .indexed_iter()
     //     .find(|&(_, val)| *val == 'S')
@@ -98,6 +98,7 @@ fn get_successors(node: &Node, map: &ParsedInput) -> Vec<(Node, usize)> {
         })
         .collect_vec()
 }
+
 fn get_heuristic(from: &Point, to: &Point) -> usize {
     let x_diff = to.x.abs_diff(from.x) as usize;
     let y_diff = to.y.abs_diff(from.y) as usize;

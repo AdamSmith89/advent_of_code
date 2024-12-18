@@ -1,4 +1,9 @@
-use std::fmt::{Debug, Display};
+use std::{
+    fmt::{Debug, Display},
+    str::FromStr,
+};
+
+use crate::error::AdventError;
 
 // Most common use-case for a PointT is unsigned
 pub type Point = PointT<usize>;
@@ -45,5 +50,23 @@ impl<T: Copy> From<&(T, T)> for PointT<T> {
 impl<T> From<PointT<T>> for (T, T) {
     fn from(value: PointT<T>) -> Self {
         (value.x, value.y)
+    }
+}
+
+impl<T: FromStr> TryFrom<&str> for PointT<T>
+where
+    AdventError: From<<T as FromStr>::Err>,
+{
+    type Error = AdventError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let (lhs, rhs) = value
+            .split_once(',')
+            .ok_or(AdventError::SplitOnce(value.to_string(), ','.to_string()))?;
+
+        Ok(PointT {
+            x: lhs.parse::<T>()?,
+            y: rhs.parse::<T>()?,
+        })
     }
 }
