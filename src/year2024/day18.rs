@@ -60,9 +60,12 @@ pub fn part2((grid, byte_locs, num_bytes): &ParsedInput) -> color_eyre::Result<S
         if path.contains(byte_loc) {
             if let Some((new_path, _)) = find_path(&grid) {
                 path = new_path;
-            }
-            else {
-                return Ok(format!("{},{}", byte_loc.x.to_string(), byte_loc.y.to_string()));
+            } else {
+                return Ok(format!(
+                    "{},{}",
+                    byte_loc.x.to_string(),
+                    byte_loc.y.to_string()
+                ));
             }
         }
     }
