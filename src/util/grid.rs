@@ -172,6 +172,14 @@ where
             .map(|direction| self.get_in_direction_ex_indexed(point, direction))
             .collect_vec()
     }
+
+    pub fn position(&self, value: &T) -> Option<(usize, usize)> {
+        if let Some((loc, _)) = self.indexed_iter().find(|(_, entry)| *entry == value) {
+            Some(loc)
+        } else {
+            None
+        }
+    }
 }
 
 // grid::Grid interface
