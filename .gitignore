@@ -16,3 +16,6 @@ Cargo.lock
 # AOC personal input files
 input/
 .aoc/aoc_session.txt
+
+# WARP Terminal files
+WARP.md

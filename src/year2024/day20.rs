@@ -31,7 +31,7 @@ fn solve(grid: &ParsedInput, max_cheat_dist: usize) -> color_eyre::Result<u32> {
         for (end_cheat, end_time) in path[cheat_end_min..].iter() {
             let cheat_dist = calc_manhattan_distance(&start_cheat, &end_cheat);
             let saved = end_time - start_time - cheat_dist;
-            
+
             if cheat_dist <= max_cheat_dist && saved >= 100 {
                 cheat_count += 1;
             }
