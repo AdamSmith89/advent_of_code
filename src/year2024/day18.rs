@@ -123,23 +123,23 @@ fn get_heuristic(from: &Point, to: &Point) -> usize {
     x_diff + y_diff
 }
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
-struct Node {
-    loc: Point,
-    // dir: Option<Direction>,
-    cost: usize,
-}
+// #[derive(Clone, Debug, Eq, Hash, PartialEq)]
+// struct Node {
+//     loc: Point,
+//     // dir: Option<Direction>,
+//     cost: usize,
+// }
 
-impl Node {
-    fn new(x: usize, y: usize, cost: usize) -> Self {
-        Self {
-            loc: Point::from((x, y)),
-            //dir,
-            cost,
-        }
-    }
+// impl Node {
+//     fn new(x: usize, y: usize, cost: usize) -> Self {
+//         Self {
+//             loc: Point::from((x, y)),
+//             //dir,
+//             cost,
+//         }
+//     }
 
-    fn is_same_loc(&self, other: &Node) -> bool {
-        self.loc == other.loc
-    }
-}
+//     fn is_same_loc(&self, other: &Node) -> bool {
+//         self.loc == other.loc
+//     }
+// }

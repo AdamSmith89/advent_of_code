@@ -1,3 +1,8 @@
+// Allowing unused code as thi solution is slow...
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
+
 use std::collections::HashSet;
 
 use itertools::Itertools;

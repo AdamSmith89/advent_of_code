@@ -30,7 +30,7 @@ pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
 
     let seeds_pt2 = seeds_pt2
         .iter()
-        .map(|(start, len)| (*start..(*start + *len)))
+        .map(|(start, len)| *start..(*start + *len))
         .collect::<Vec<_>>();
 
     let maps = maps

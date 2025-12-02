@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 type ParsedInput<'a> = Vec<&'a str>;
 
-pub fn parse(input: &str) -> color_eyre::Result<ParsedInput> {
+pub fn parse(input: &str) -> color_eyre::Result<ParsedInput<'_>> {
     Ok(input.lines().collect())
 }
 

@@ -284,15 +284,15 @@ impl<T: Clone + Default + std::cmp::Eq> Grid<T> {
         self.inner.is_empty()
     }
 
-    pub fn iter(&self) -> Iter<T> {
+    pub fn iter(&self) -> Iter<'_, T> {
         self.inner.iter()
     }
 
-    pub fn iter_col(&self, col: usize) -> StepBy<Iter<T>> {
+    pub fn iter_col(&self, col: usize) -> StepBy<Iter<'_, T>> {
         self.inner.iter_col(col)
     }
 
-    pub fn iter_col_mut(&mut self, col: usize) -> StepBy<IterMut<T>> {
+    pub fn iter_col_mut(&mut self, col: usize) -> StepBy<IterMut<'_, T>> {
         self.inner.iter_col_mut(col)
     }
 
@@ -300,15 +300,15 @@ impl<T: Clone + Default + std::cmp::Eq> Grid<T> {
         self.inner.iter_cols()
     }
 
-    pub fn iter_mut(&mut self) -> IterMut<T> {
+    pub fn iter_mut(&mut self) -> IterMut<'_, T> {
         self.inner.iter_mut()
     }
 
-    pub fn iter_row(&self, row: usize) -> StepBy<Iter<T>> {
+    pub fn iter_row(&self, row: usize) -> StepBy<Iter<'_, T>> {
         self.inner.iter_row(row)
     }
 
-    pub fn iter_row_mut(&mut self, row: usize) -> StepBy<IterMut<T>> {
+    pub fn iter_row_mut(&mut self, row: usize) -> StepBy<IterMut<'_, T>> {
         self.inner.iter_row_mut(row)
     }
 
