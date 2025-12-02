@@ -34,7 +34,7 @@ fn part1_example() {
 
 #[test]
 fn part1_real() {
-    let parsed = parse(PUZZLE_INPUT).expect("Error parsing input");
+    let _parsed = parse(PUZZLE_INPUT).expect("Error parsing input");
     //let _actual = part1(&parsed).expect("Error solving part 1");
 
     //assert_eq!(expected, actual);
@@ -50,7 +50,7 @@ fn part2_example() {
 
 #[test]
 fn part2_real() {
-    let parsed = parse(PUZZLE_INPUT).expect("Error parsing input");
+    let _parsed = parse(PUZZLE_INPUT).expect("Error parsing input");
     //let _actual = part2(&parsed).expect("Error solving part 2");
 
     //assert_eq!(expected, actual);

@@ -67,6 +67,7 @@ fn get_puzzles(year: Option<String>, day: Option<String>) -> Vec<Puzzle> {
         .chain(year2019())
         .chain(year2023())
         .chain(year2024())
+        .chain(year2025())
         .filter(|puzzle| year.as_ref().map_or(true, |year| *year == puzzle.year))
         .filter(|puzzle| day.as_ref().map_or(true, |day| *day == puzzle.day))
         .collect::<Vec<_>>()
@@ -260,6 +261,12 @@ fn year2024() -> Vec<Puzzle> {
         puzzle!(year2024, day19),
         puzzle!(year2024, day20),
         puzzle!(year2024, day21),
+    ]
+}
+
+fn year2025() -> Vec<Puzzle> {
+    vec![
+        puzzle!(year2025, day01),
         // NEXT
     ]
 }

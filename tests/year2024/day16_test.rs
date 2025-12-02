@@ -75,7 +75,7 @@ fn part1_example_2() {
 
 #[test]
 fn part1_real() {
-    let parsed = parse(PUZZLE_INPUT).expect("Error parsing input");
+    let _parsed = parse(PUZZLE_INPUT).expect("Error parsing input");
     //let _actual = part1(&parsed).expect("Error solving part 1");
 
     // Runs in about 5 mins...
@@ -101,7 +101,7 @@ fn part2_example_2() {
 
 #[test]
 fn part2_real() {
-    let parsed = parse(PUZZLE_INPUT).expect("Error parsing input");
+    let _parsed = parse(PUZZLE_INPUT).expect("Error parsing input");
     //let _actual = part2(&parsed).expect("Error solving part 2");
 
     // Runs in about 11 mins...
